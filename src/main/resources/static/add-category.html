@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Thêm Danh Mục Mới - 3T Story</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="logo-container">
+                <span class="logo-text">3T <span class="highlight">Story</span></span>
+            </div>
+            <nav class="menu">
+                <a href="#" class="menu-item"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+                <a href="#" class="menu-item"><i class="fa-solid fa-users"></i> Đọc giả</a>
+                <a href="admin.html" class="menu-item active"><i class="fa-solid fa-list"></i> Danh mục truyện</a>
+                <a href="#" class="menu-item"><i class="fa-solid fa-book"></i> Quản lý Truyện</a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="top-header">
+                <div class="system-title">3T STORY <span class="sub-title">MANAGEMENT SYSTEM</span></div>
+                <div class="admin-profile">
+                    <div class="admin-info">
+                        <span class="role">👑 ADMIN</span>
+                        <span class="name">THỦY THU</span>
+                    </div>
+                    <div class="avatar">T</div>
+                </div>
+            </header>
+
+            <section class="content-body">
+                <div class="table-card">
+                    
+                    <div class="form-title-container">
+                        <a href="admin.html" class="back-link-icon" title="Quay lại danh sách">
+                            <i class="fa-solid fa-arrow-left"></i>
+                        </a>
+                        <h1 class="main-form-title">Thêm Danh Mục Truyện Mới</h1>
+                    </div>
+
+                    <form id="categoryForm" class="horizontal-form">
+                        
+                        <div class="form-column column-left">
+                            <div class="input-group">
+                                <label for="cateName">Tên danh mục truyện</label>
+                                <input type="text" id="cateName" placeholder="Ví dụ: Tiên Hiệp, Ngôn Tình, Trinh Thám..." required>
+                            </div>
+                        </div>
+
+                        <div class="form-column column-right">
+                            <div class="input-group">
+                                <label for="cateDescription">Mô tả danh mục</label>
+                                <textarea id="cateDescription" rows="6" placeholder="Nhập mô tả tóm tắt cho thể loại truyện này..." required></textarea>
+                            </div>
+
+                            <div class="form-actions-container">
+                                <button type="button" class="btn-secondary" onclick="location.href='admin.html'">Hủy bỏ</button>
+                                <button type="submit" class="btn-primary">Lưu danh mục</button>
+                            </div>
+                        </div>
+
+                    </form>
+
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        document.getElementById('categoryForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const name = document.getElementById('cateName').value;
+            const description = document.getElementById('cateDescription').value;
+
+            fetch('http://localhost:8080/api/categories', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: name, description: description })
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert("Thêm danh mục truyện mới thành công! 🎉");
+                    window.location.href = "admin.html";
+                } else {
+                    alert("Thêm thất bại, vui lòng kiểm tra lại backend.");
+                }
+            })
+            .catch(error => console.error('Lỗi:', error));
+        });
+    </script>
+</body>
+</html>

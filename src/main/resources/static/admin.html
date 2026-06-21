@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard - Web Đọc Truyện</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Đoạn CSS đặc biệt xử lý thu gọn mô tả dài thành dấu ba chấm (...) */
+        .text-ellipsis {
+            max-width: 450px;       /* Độ rộng tối đa của vùng mô tả */
+            white-space: nowrap;    /* Không cho chữ tự động xuống dòng */
+            overflow: hidden;       /* Ẩn phần chữ bị tràn ra ngoài */
+            text-overflow: ellipsis;/* Tự động điền dấu "..." vào cuối văn bản bị cắt */
+            color: #64748b;         /* Màu xám nhẹ cho chữ mô tả */
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="logo-container">
+                <span class="logo-text">3T <span class="highlight">Story</span></span>
+            </div>
+            <nav class="menu">
+                <a href="#" class="menu-item"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+                <a href="#" class="menu-item"><i class="fa-solid fa-users"></i> Đọc giả</a>
+                <a href="admin.html" class="menu-item active"><i class="fa-solid fa-list"></i> Danh mục truyện</a>
+                <a href="#" class="menu-item"><i class="fa-solid fa-book"></i> Quản lý Truyện</a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="top-header">
+                <div class="system-title">3T STORY <span class="sub-title">MANAGEMENT SYSTEM</span></div>
+                <div class="admin-profile">
+                    <div class="admin-info">
+                        <span class="role">👑 ADMIN</span>
+                        <span class="name">THỦY THU</span>
+                    </div>
+                    <div class="avatar">T</div>
+                </div>
+            </header>
+
+            <section class="content-body">
+                <div class="table-card">
+                    <div class="table-header">
+                        <h2><i class="fa-solid fa-list-ul"></i> Quản Lý Danh Mục Truyện</h2>
+                        <button class="add-btn" onclick="location.href='add-category.html'"><i class="fa-solid fa-plus"></i> Thêm danh mục mới</button>
+                    </div>
+                    
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 10%">ID</th>
+                                <th style="width: 25%">Tên Danh Mục Truyện</th>
+                                <th style="width: 45%">Mô tả chi tiết</th> <th style="width: 20%; text-align: center;">Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody id="category-table-body">
+                            <tr>
+                                <td colspan="4" style="text-align: center; color: #94a3b8;">Đang tải dữ liệu từ database...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:8080/api/categories';
+
+        function loadCategories() {
+            fetch(API_URL)
+                .then(response => response.json())
+                .then(data => {
+                    const tbody = document.getElementById('category-table-body');
+                    tbody.innerHTML = ''; 
+
+                    data.forEach(category => {
+                        // Kiểm tra nếu không có mô tả thì hiện chữ "Chưa có mô tả" để tránh bị trống ô
+                        const descriptionText = category.description ? category.description : '<em>Chưa có mô tả</em>';
+
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td><strong>#${category.id}</strong></td>
+                            <td><span class="category-badge">${category.name}</span></td>
+                            <td><div class="text-ellipsis" title="${category.description || ''}">${descriptionText}</div></td>
+                            <td style="text-align: center;">
+                                <button class="action-btn edit-btn" title="Sửa" onclick="location.href='edit-category.html?id=${category.id}'">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </button>
+                                <button class="action-btn delete-btn" title="Xóa" onclick="deleteCategory(${category.id}, '${category.name}')">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                })
+                .catch(error => console.error('Lỗi kết nối:', error));
+        }
+
+        loadCategories();
+
+        function deleteCategory(id, name) {
+            if (confirm(`Bạn có chắc chắn muốn xóa danh mục "${name}" (ID: #${id}) không?`)) {
+                fetch(`${API_URL}/${id}`, {
+                    method: 'DELETE'
+                })
+                .then(response => {
+                    if (response.ok) {
+                        alert("Xóa danh mục thành công! 🗑️");
+                        loadCategories();
+                    } else {
+                        alert("Xóa thất bại!");
+                    }
+                })
+                .catch(error => console.error('Lỗi khi xóa:', error));
+            }
+        }
+    </script>
+</body>
+</html>

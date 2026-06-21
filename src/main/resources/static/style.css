@@ -1,0 +1,344 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: #f9f6f0;
+}
+
+.app-container {
+    display: flex;
+    height: 100vh;
+}
+
+/* SIDEBAR MÀU TỐI GIỐNG 3T HOSPITAL */
+.sidebar {
+    width: 260px;
+    background-color: #262220;
+    color: #8a99ad;
+    padding: 20px 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.logo-container {
+    padding: 10px 25px;
+    font-size: 24px;
+    font-weight: bold;
+    color: #3b82f6;
+    margin-bottom: 30px;
+}
+.logo-container .highlight { color: #00f2fe; }
+
+.menu {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 0 15px;
+}
+
+.menu-item {
+    color: #8a99ad;
+    text-decoration: none;
+    padding: 14px 20px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    font-weight: 500;
+    transition: all 0.3s;
+}
+
+.menu-item:hover {
+    color: white;
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Nút danh mục đang được chọn phát sáng xanh giống ảnh mẫu */
+.menu-item.active {
+    background: linear-gradient(90deg, rgba(0, 180, 219, 0.15), rgba(0, 131, 176, 0.05));
+    color: #00b4db;
+    border: 1px solid rgba(0, 180, 219, 0.5);
+}
+
+/* PHẦN NỘI DUNG CHÍNH BÊN PHẢI */
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+/* TOP HEADER */
+.top-header {
+    background-color: #262220;
+    color: white;
+    height: 70px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 30px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.system-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: #00b4db;
+    letter-spacing: 0.5px;
+}
+.sub-title {
+    font-size: 10px;
+    color: #6c7a9c;
+    display: block;
+    letter-spacing: 1px;
+    font-weight: normal;
+    margin-top: 2px;
+}
+
+.admin-profile {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.notification-icon {
+    font-size: 20px;
+    color: #a0aec0;
+    cursor: pointer;
+}
+
+.admin-info {
+    text-align: right;
+}
+.admin-info .role {
+    display: block;
+    font-size: 10px;
+    color: #f59e0b;
+    font-weight: bold;
+}
+.admin-info .name {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.avatar {
+    width: 40px;
+    height: 40px;
+    background-color: #0076ff;
+    color: white;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    box-shadow: 0 4px 10px rgba(0, 118, 255, 0.3);
+}
+
+/* VÙNG HIỂN THỊ BẢNG DỮ LIỆU */
+.content-body {
+    padding: 30px;
+    flex: 1;
+}
+
+.table-card {
+    background-color: #ffffff;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+.table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.table-header h2 {
+    color: #1e293b;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.add-btn {
+    background-color: #4a6b53;
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.add-btn:hover { background-color: #2563eb; }
+
+/* ĐỊNH DẠNG TABLE CHUẨN */
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.data-table th {
+    background-color: #f8fafc;
+    color: #64748b;
+    text-align: left;
+    padding: 14px 20px;
+    font-weight: 600;
+    font-size: 14px;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.data-table td {
+    padding: 16px 20px;
+    color: #334155;
+    font-size: 15px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.category-badge {
+    background-color: #e0f2fe;
+    color: #0369a1;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+/* NÚT HÀNH ĐỘNG (SỬA, XÓA) */
+.action-btn {
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    margin: 0 3px;
+    font-size: 14px;
+    transition: background 0.2s;
+}
+
+/* --- CSS BỔ SUNG CHO TRANG NHẬP FORM NGANG --- */
+
+/* Khung chứa tiêu đề và nút quay lại */
+.form-title-container {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+/* Icon mũi tên quay về trước tiêu đề */
+.back-link-icon {
+    color: #64748b;
+    font-size: 22px;
+    text-decoration: none;
+    transition: color 0.2s, transform 0.2s;
+    display: flex;
+    align-items: center;
+}
+.back-link-icon:hover {
+    color: #3b82f6;
+    transform: translateX(-3px); /* Nhẹ nhàng nhích sang trái khi hover */
+}
+
+/* Chữ tiêu đề to hơn */
+.main-form-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+/* Chia form thành Layout 2 cột nằm ngang */
+.horizontal-form {
+    display: flex;
+    gap: 40px; /* Khoảng cách giữa 2 bên khung */
+    align-items: flex-start;
+}
+
+/* Thuộc tính chung cho 2 cột */
+.form-column {
+    flex: 1; /* Chia đều tỉ lệ 50% - 50% diện tích chiều ngang */
+}
+
+/* Cấu trúc của từng ô nhập liệu */
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.input-group label {
+    font-weight: 600;
+    color: #334155;
+    font-size: 15px;
+}
+
+.input-group input[type="text"],
+.input-group textarea {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 15px;
+    color: #334155;
+    background-color: #ffffff;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+/* Hiệu ứng khi click vào ô nhập */
+.input-group input:focus,
+.input-group textarea:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Chỉnh textarea cố định chiều cao hợp lý */
+.input-group textarea {
+    resize: none; /* Khóa không cho admin kéo giãn lung tung làm vỡ layout */
+}
+
+/* Vùng chứa nút dạt về góc dưới bên phải của cột mô tả */
+.form-actions-container {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end; /* Đẩy toàn bộ nút sang bên phải */
+    margin-top: 20px;
+}
+
+/* Định dạng các nút */
+.btn-primary {
+    background-color: #3b82f6;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.btn-primary:hover { background-color: #2563eb; }
+
+.btn-secondary {
+    background-color: #e2e8f0;
+    color: #475569;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.btn-secondary:hover { background-color: #cbd5e1; }
+.edit-btn { background-color: #fef3c7; color: #d97706; }
+.edit-btn:hover { background-color: #fde68a; }
+
+.delete-btn { background-color: #fee2e2; color: #dc2626; }
+.delete-btn:hover { background-color: #fecaca; }

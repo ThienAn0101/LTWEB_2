@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Chỉnh Sửa Danh Mục - 3T Story</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="logo-container">
+                <span class="logo-text">3T <span class="highlight">Story</span></span>
+            </div>
+            <nav class="menu">
+                <a href="#" class="menu-item"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+                <a href="#" class="menu-item"><i class="fa-solid fa-users"></i> Đọc giả</a>
+                <a href="admin.html" class="menu-item active"><i class="fa-solid fa-list"></i> Danh mục truyện</a>
+                <a href="#" class="menu-item"><i class="fa-solid fa-book"></i> Quản lý Truyện</a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="top-header">
+                <div class="system-title">3T STORY <span class="sub-title">MANAGEMENT SYSTEM</span></div>
+                <div class="admin-profile">
+                    <div class="admin-info"><span class="role">👑 ADMIN</span><span class="name">THỦY THU</span></div>
+                    <div class="avatar">T</div>
+                </div>
+            </header>
+
+            <section class="content-body">
+                <div class="table-card">
+                    
+                    <div class="form-title-container">
+                        <a href="admin.html" class="back-link-icon"><i class="fa-solid fa-arrow-left"></i></a>
+                        <h1 class="main-form-title">Chỉnh Sửa Danh Mục Truyện</h1>
+                    </div>
+
+                    <form id="editCategoryForm" class="horizontal-form">
+                        <div class="form-column column-left">
+                            <div class="input-group">
+                                <label for="cateName">Tên danh mục truyện</label>
+                                <input type="text" id="cateName" required>
+                            </div>
+                        </div>
+
+                        <div class="form-column column-right">
+                            <div class="input-group">
+                                <label for="cateDescription">Mô tả danh mục</label>
+                                <textarea id="cateDescription" rows="6" required></textarea>
+                            </div>
+
+                            <div class="form-actions-container">
+                                <button type="button" class="btn-secondary" onclick="location.href='admin.html'">Hủy bỏ</button>
+                                <button type="submit" class="btn-primary">Cập nhật ngay</button>
+                            </div>
+                        </div>
+                    </form>
+
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // Lấy cái ID truyền từ trang danh sách qua URL (Ví dụ: edit-category.html?id=1)
+        const urlParams = new URLSearchParams(window.location.search);
+        const categoryId = urlParams.get('id');
+        const API_URL = `http://localhost:8080/api/categories/${categoryId}`;
+
+        // 1. Tự động gọi API lấy dữ liệu cũ điền sẵn vào các ô input khi vừa mở trang
+        if (categoryId) {
+            fetch(API_URL)
+                .then(response => response.json())
+                .then(category => {
+                    document.getElementById('cateName').value = category.name;
+                    document.getElementById('cateDescription').value = category.description || '';
+                })
+                .catch(error => console.error('Lỗi tải dữ liệu cũ:', error));
+        }
+
+        // 2. Xử lý sự kiện khi Admin bấm nút "Cập nhật ngay"
+        document.getElementById('editCategoryForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('cateName').value;
+            const description = document.getElementById('cateDescription').value;
+
+            // Gọi API với phương thức PUT để sửa đổi
+            fetch(API_URL, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: name, description: description })
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert("Cập nhật danh mục truyện thành công! 🎉");
+                    window.location.href = "admin.html"; // Quay về trang danh sách công việc
+                } else {
+                    alert("Cập nhật thất bại, vui lòng kiểm tra lại.");
+                }
+            })
+            .catch(error => console.error('Lỗi gửi cập nhật:', error));
+        });
+    </script>
+</body>
+</html>
