@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Chỉnh Sửa Truyện - 3T Story</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="logo-container">
+                <span class="logo-text">3T <span class="highlight">Story</span></span>
+            </div>
+            <nav class="menu">
+                <a href="#" class="menu-item"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+                <a href="#" class="menu-item"><i class="fa-solid fa-users"></i> Đọc giả</a>
+                <a href="admin.html" class="menu-item"><i class="fa-solid fa-list"></i> Danh mục truyện</a>
+                <a href="manage-books.html" class="menu-item active"><i class="fa-solid fa-book"></i> Quản lý Truyện</a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="top-header">
+                <div class="system-title">3T STORY <span class="sub-title">MANAGEMENT SYSTEM</span></div>
+            </header>
+
+            <section class="content-body" style="padding: 30px;">
+
+                <div class="form-card"
+                    style="width: 100%; background: #fff; padding: 30px; border-radius: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.02);">
+
+                    <div
+                        style="display: flex; align-items: center; gap: 10px; margin-bottom: 30px; border-bottom: 1px solid #f1f5f9; padding-bottom: 15px;">
+                        <a href="manage-books.html"
+                            style="text-decoration: none; color: #1e293b; font-size: 20px; display: flex; align-items: center;">
+                            <i class="fa-solid fa-arrow-left"></i>
+                        </a>
+                        <h2 style="font-size: 22px; color: #1e293b; font-weight: 700; margin: 0;">
+                            Chỉnh Sửa Thông Tin Bộ Truyện (ID: #<span id="book-id-text"></span>)
+                        </h2>
+                    </div>
+
+                    <form id="edit-book-form">
+                        <div style="display: flex; gap: 30px; flex-wrap: wrap; margin-bottom: 25px;">
+
+                            <div style="flex: 1; min-width: 300px;">
+                                <div style="margin-bottom: 20px;">
+                                    <label
+                                        style="display: block; margin-bottom: 8px; font-weight: 600; color: #334155; font-size: 14px;">Tên
+                                        bộ truyện <span style="color:red;">*</span></label>
+                                    <input type="text" id="title" required
+                                        style="width: 100%; padding: 12px 16px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px;">
+                                </div>
+
+                                <div style="margin-bottom: 20px;">
+                                    <label
+                                        style="display: block; margin-bottom: 8px; font-weight: 600; color: #334155; font-size: 14px;">Tác
+                                        giả</label>
+                                    <input type="text" id="author"
+                                        style="width: 100%; padding: 12px 16px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px;">
+                                </div>
+
+                                <div style="margin-bottom: 20px;">
+                                    <label
+                                        style="display: block; margin-bottom: 8px; font-weight: 600; color: #334155; font-size: 14px;">Thuộc
+                                        Danh mục/Thể loại <span style="color:red;">*</span></label>
+                                    <select id="category-select" required
+                                        style="width: 100%; padding: 12px 16px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; background: #fff;">
+                                        <option value="">-- Chọn danh mục truyện --</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label
+                                        style="display: block; margin-bottom: 8px; font-weight: 600; color: #334155; font-size: 14px;">Thay
+                                        đổi ảnh bìa mới (Bỏ trống nếu giữ nguyên ảnh cũ)</label>
+                                    <input type="file" id="coverFile" accept="image/*"
+                                        style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; background: #f8fafc;">
+                                    <div id="current-cover-container"
+                                        style="margin-top: 10px; font-size: 13px; color: #64748b;">
+                                        Ảnh hiện tại: <a id="current-cover-link" href="#" target="_blank"
+                                            style="color: #3b82f6;">Xem ảnh</a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style="flex: 1; min-width: 300px; display: flex; flex-direction: column;">
+                                <label
+                                    style="display: block; margin-bottom: 8px; font-weight: 600; color: #334155; font-size: 14px;">Tóm
+                                    tắt nội dung</label>
+                                <textarea id="summary"
+                                    style="width: 100%; flex: 1; min-height: 250px; padding: 12px 16px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; resize: none; font-family: inherit;"></textarea>
+                            </div>
+
+                        </div>
+
+                        <div
+                            style="display: flex; gap: 12px; justify-content: flex-end; border-top: 1px solid #f1f5f9; padding-top: 20px;">
+                            <button type="button" onclick="location.href='manage-books.html'"
+                                style="padding: 10px 24px; background: #e2e8f0; color: #475569; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">Hủy
+                                bỏ</button>
+                            <button type="submit"
+                                style="padding: 10px 24px; background: #10b981; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">Cập
+                                nhật truyện</button>
+                        </div>
+                    </form>
+                </div>
+
+            </section>
+        </main>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const bookId = urlParams.get('id'); // Lấy id truyện từ thanh địa chỉ URL
+
+        document.getElementById('book-id-text').textContent = bookId;
+
+        // 1. Load toàn bộ danh mục vào thẻ Select trước
+        function loadCategories() {
+            return fetch('http://localhost:8080/api/categories')
+                .then(res => res.json())
+                .then(data => {
+                    const select = document.getElementById('category-select');
+                    data.forEach(cat => {
+                        const opt = document.createElement('option');
+                        opt.value = cat.id;
+                        opt.textContent = cat.name;
+                        select.appendChild(opt);
+                    });
+                });
+        }
+
+        // 2. Load dữ liệu cũ của bộ truyện điền vào Form
+        function loadBookDetails() {
+            fetch(`http://localhost:8080/api/books/${bookId}`)
+                .then(res => res.json())
+                .then(book => {
+                    document.getElementById('title').value = book.title;
+                    document.getElementById('author').value = book.author || '';
+                    document.getElementById('summary').value = book.summary || '';
+                    if (book.category) {
+                        document.getElementById('category-select').value = book.category.id;
+                    }
+                    if (book.coverUrl) {
+                        document.getElementById('current-cover-link').href = `http://localhost:8080${book.coverUrl}`;
+                    } else {
+                        document.getElementById('current-cover-container').style.display = 'none';
+                    }
+                })
+                .catch(err => console.error('Lỗi tải chi tiết truyện:', err));
+        }
+
+        // Chạy tuần tự: Load danh mục xong mới load dữ liệu truyện
+        loadCategories().then(loadBookDetails);
+
+        // 3. Xử lý sự kiện Submit để cập nhật thông tin (Gửi PUT)
+        document.getElementById('edit-book-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const formData = new FormData();
+
+            const bookData = {
+                title: document.getElementById('title').value,
+                author: document.getElementById('author').value,
+                summary: document.getElementById('summary').value
+            };
+
+            formData.append("book", new Blob([JSON.stringify(bookData)], { type: "application/json" }));
+
+            const fileInput = document.getElementById('coverFile');
+            if (fileInput.files.length > 0) {
+                formData.append("file", fileInput.files[0]);
+            }
+
+            const categoryId = document.getElementById('category-select').value;
+
+            fetch(`http://localhost:8080/api/books/${bookId}?categoryId=${categoryId}`, {
+                method: 'PUT', // Sử dụng method PUT để chỉnh sửa dữ liệu
+                body: formData
+            })
+                .then(response => {
+                    if (response.ok) {
+                        alert("Cập nhật thông tin truyện thành công! ✨");
+                        location.href = 'manage-books.html';
+                    } else {
+                        alert("Có lỗi xảy ra khi cập nhật truyện.");
+                    }
+                })
+                .catch(error => console.error('Lỗi hệ thống:', error));
+        });
+    </script>
+</body>
+
+</html>
