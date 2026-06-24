@@ -6,7 +6,9 @@
 }
 
 body {
-    background-color: #f9f6f0;
+    background-color: #0B0908;
+    /* Màu nền tối sâu, ấm áp */
+    color: #DCCFBC;
 }
 
 .app-container {
@@ -14,24 +16,34 @@ body {
     height: 100vh;
 }
 
-/* SIDEBAR MÀU TỐI GIỐNG 3T HOSPITAL */
+/* ==========================================
+   SIDEBAR (NAVBAR BÊN TRÁI)
+   ========================================== */
 .sidebar {
     width: 260px;
-    background-color: #262220;
-    color: #8a99ad;
+    background-color: #241A16;
+    /* Màu gỗ đậm trầm */
+    color: #DCCFBC;
     padding: 20px 0;
     display: flex;
     flex-direction: column;
+    border-right: 1px solid #3D2B22;
 }
 
 .logo-container {
     padding: 10px 25px;
     font-size: 24px;
     font-weight: bold;
-    color: #3b82f6;
     margin-bottom: 30px;
 }
-.logo-container .highlight { color: #00f2fe; }
+
+/* Áp dụng hiệu ứng LOAN MÀU THEO CHIỀU SÂU cho chữ Logo 3T Story */
+.logo-container .highlight {
+    background-image: linear-gradient(to right, #C08B5C, #FFF1DC);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: inline-block;
+}
 
 .menu {
     display: flex;
@@ -41,7 +53,7 @@ body {
 }
 
 .menu-item {
-    color: #8a99ad;
+    color: #DCCFBC;
     text-decoration: none;
     padding: 14px 20px;
     border-radius: 10px;
@@ -50,21 +62,27 @@ body {
     gap: 15px;
     font-weight: 500;
     transition: all 0.3s;
+    opacity: 0.8;
 }
 
 .menu-item:hover {
-    color: white;
-    background-color: rgba(255, 255, 255, 0.05);
+    color: #FFF1DC;
+    background-color: #3D2B22;
+    /* Hover nhẹ nhàng tiệp màu border */
+    opacity: 1;
 }
 
-/* Nút danh mục đang được chọn phát sáng xanh giống ảnh mẫu */
+/* Mục danh mục đang được chọn - Đổi sang tone ấm nhẹ */
 .menu-item.active {
-    background: linear-gradient(90deg, rgba(0, 180, 219, 0.15), rgba(0, 131, 176, 0.05));
-    color: #00b4db;
-    border: 1px solid rgba(0, 180, 219, 0.5);
+    background: linear-gradient(90deg, rgba(192, 139, 92, 0.15), rgba(255, 241, 220, 0.05));
+    color: #FFF1DC;
+    border: 1px solid #C08B5C;
+    opacity: 1;
 }
 
-/* PHẦN NỘI DUNG CHÍNH BÊN PHẢI */
+/* ==========================================
+   PHẦN NỘI DUNG CHÍNH BÊN PHẢI
+   ========================================== */
 .main-content {
     flex: 1;
     display: flex;
@@ -74,25 +92,31 @@ body {
 
 /* TOP HEADER */
 .top-header {
-    background-color: #262220;
-    color: white;
+    background-color: #0E0B09;
+    color: #FFF1DC;
     height: 70px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 0 30px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid #3D2B22;
 }
 
+/* Hiệu ứng loan màu chiều sâu cho tiêu đề hệ thống */
 .system-title {
     font-size: 18px;
     font-weight: bold;
-    color: #00b4db;
+    background-image: linear-gradient(to right, #C08B5C, #FFF1DC);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
     letter-spacing: 0.5px;
+    display: inline-block;
 }
+
 .sub-title {
     font-size: 10px;
-    color: #6c7a9c;
+    color: #C08B5C;
+    /* Đổi sang màu nâu quế nhẹ */
     display: block;
     letter-spacing: 1px;
     font-weight: normal;
@@ -107,20 +131,29 @@ body {
 
 .notification-icon {
     font-size: 20px;
-    color: #a0aec0;
+    color: #DCCFBC;
     cursor: pointer;
+    opacity: 0.8;
+}
+
+.notification-icon:hover {
+    opacity: 1;
 }
 
 .admin-info {
     text-align: right;
 }
+
 .admin-info .role {
     display: block;
     font-size: 10px;
-    color: #f59e0b;
+    color: #C08B5C;
+    /* Tone ấm nhẹ thống nhất */
     font-weight: bold;
 }
+
 .admin-info .name {
+    color: #FFF1DC;
     font-weight: 600;
     font-size: 14px;
 }
@@ -128,27 +161,31 @@ body {
 .avatar {
     width: 40px;
     height: 40px;
-    background-color: #0076ff;
-    color: white;
+    background-color: #3D2B22;
+    /* Đổi từ xanh dương sang nâu trầm */
+    color: #FFF1DC;
+    border: 1px solid #C08B5C;
     border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: bold;
-    box-shadow: 0 4px 10px rgba(0, 118, 255, 0.3);
 }
 
-/* VÙNG HIỂN THỊ BẢNG DỮ LIỆU */
+/* ==========================================
+   VÙNG HIỂN THỊ BẢNG DỮ LIỆU & FORM
+   ========================================== */
 .content-body {
     padding: 30px;
     flex: 1;
 }
 
 .table-card {
-    background-color: #ffffff;
+    background-color: #241A16;
+    /* Đồng bộ màu CARD gỗ ấm */
+    border: 1px solid #3D2B22;
     border-radius: 16px;
     padding: 24px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
 }
 
 .table-header {
@@ -159,114 +196,93 @@ body {
 }
 
 .table-header h2 {
-    color: #1e293b;
+    color: #FFF1DC;
+    /* Màu TITLE tiêu đề */
     font-size: 20px;
     display: flex;
     align-items: center;
     gap: 10px;
 }
 
-.add-btn {
-    background-color: #4a6b53;
-    color: white;
-    border: none;
-    padding: 10px 18px;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.2s;
-}
-.add-btn:hover { background-color: #2563eb; }
-
-/* ĐỊNH DẠNG TABLE CHUẨN */
+/* ĐỊNH DẠNG TABLE */
 .data-table {
     width: 100%;
     border-collapse: collapse;
 }
 
 .data-table th {
-    background-color: #f8fafc;
-    color: #64748b;
+    background-color: #0B0908;
+    /* Thụt nền tối cho header của bảng */
+    color: #C08B5C;
+    /* Màu nhấn chữ nổi bật vừa phải */
     text-align: left;
     padding: 14px 20px;
     font-weight: 600;
     font-size: 14px;
-    border-bottom: 2px solid #e2e8f0;
+    border-bottom: 2px solid #3D2B22;
 }
 
 .data-table td {
     padding: 16px 20px;
-    color: #334155;
+    color: #DCCFBC;
+    /* TEXT nội dung */
     font-size: 15px;
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid #3D2B22;
 }
 
+/* Thẻ Badge phân loại thể loại truyện */
 .category-badge {
-    background-color: #e0f2fe;
-    color: #0369a1;
+    background-color: #3D2B22;
+    color: #FFF1DC;
     padding: 6px 12px;
     border-radius: 6px;
     font-weight: 600;
     font-size: 14px;
+    border: 1px solid rgba(192, 139, 92, 0.3);
 }
 
-/* NÚT HÀNH ĐỘNG (SỬA, XÓA) */
-.action-btn {
-    border: none;
-    padding: 8px 12px;
-    border-radius: 6px;
-    cursor: pointer;
-    margin: 0 3px;
-    font-size: 14px;
-    transition: background 0.2s;
-}
-
-/* --- CSS BỔ SUNG CHO TRANG NHẬP FORM NGANG --- */
-
-/* Khung chứa tiêu đề và nút quay lại */
+/* ==========================================
+   CẤU TRÚC FORM HOÀN CHỈNH
+   ========================================== */
 .form-title-container {
     display: flex;
     align-items: center;
     gap: 15px;
     margin-bottom: 30px;
     padding-bottom: 15px;
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid #3D2B22;
 }
 
-/* Icon mũi tên quay về trước tiêu đề */
 .back-link-icon {
-    color: #64748b;
+    color: #DCCFBC;
     font-size: 22px;
     text-decoration: none;
-    transition: color 0.2s, transform 0.2s;
+    transition: all 0.2s;
     display: flex;
     align-items: center;
 }
+
 .back-link-icon:hover {
-    color: #3b82f6;
-    transform: translateX(-3px); /* Nhẹ nhàng nhích sang trái khi hover */
+    color: #C08B5C;
+    transform: translateX(-3px);
 }
 
-/* Chữ tiêu đề to hơn */
 .main-form-title {
     font-size: 24px;
     font-weight: 700;
-    color: #1e293b;
+    color: #FFF1DC;
 }
 
-/* Chia form thành Layout 2 cột nằm ngang */
 .horizontal-form {
     display: flex;
-    gap: 40px; /* Khoảng cách giữa 2 bên khung */
+    gap: 40px;
     align-items: flex-start;
 }
 
-/* Thuộc tính chung cho 2 cột */
 .form-column {
-    flex: 1; /* Chia đều tỉ lệ 50% - 50% diện tích chiều ngang */
+    flex: 1;
 }
 
-/* Cấu trúc của từng ô nhập liệu */
 .input-group {
     display: flex;
     flex-direction: column;
@@ -276,7 +292,7 @@ body {
 
 .input-group label {
     font-weight: 600;
-    color: #334155;
+    color: #DCCFBC;
     font-size: 15px;
 }
 
@@ -284,61 +300,136 @@ body {
 .input-group textarea {
     width: 100%;
     padding: 12px 16px;
-    border: 1px solid #cbd5e1;
+    border: 1px solid #3D2B22;
     border-radius: 8px;
     font-size: 15px;
-    color: #334155;
-    background-color: #ffffff;
-    transition: border-color 0.2s, box-shadow 0.2s;
+    color: #FFF1DC;
+    background-color: #0B0908;
+    /* Ô nhập liệu chìm vào nền tối */
+    transition: all 0.2s;
 }
 
-/* Hiệu ứng khi click vào ô nhập */
 .input-group input:focus,
 .input-group textarea:focus {
     outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    border-color: #C08B5C;
+    /* Khi click ô nhập sẽ sáng viền nâu quế */
+    box-shadow: 0 0 0 3px rgba(192, 139, 92, 0.15);
 }
 
-/* Chỉnh textarea cố định chiều cao hợp lý */
 .input-group textarea {
-    resize: none; /* Khóa không cho admin kéo giãn lung tung làm vỡ layout */
+    resize: none;
 }
 
-/* Vùng chứa nút dạt về góc dưới bên phải của cột mô tả */
 .form-actions-container {
     display: flex;
     gap: 12px;
-    justify-content: flex-end; /* Đẩy toàn bộ nút sang bên phải */
+    justify-content: flex-end;
     margin-top: 20px;
 }
 
-/* Định dạng các nút */
+/* ==========================================
+   HỆ THỐNG NÚT BẤM (BUTTON) THỐNG NHẤT
+   ========================================== */
+/* Nút bấm chính (Thêm mới, Lưu form...) */
+.add-btn,
 .btn-primary {
-    background-color: #3b82f6;
-    color: white;
+    background-color: #C08B5C;
+    /* BUTTON */
+    color: #0B0908;
+    /* Chữ tối trên nền nút sáng để dễ nhìn */
     border: none;
-    padding: 12px 24px;
+    padding: 10px 18px;
     border-radius: 8px;
     font-weight: 600;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: background 0.2s;
 }
-.btn-primary:hover { background-color: #2563eb; }
 
+.add-btn:hover,
+.btn-primary:hover {
+    background-color: #D19B69;
+    /* BUTTON HOVER */
+}
+
+/* Nút bấm phụ (Hủy bỏ) */
 .btn-secondary {
-    background-color: #e2e8f0;
-    color: #475569;
-    border: none;
+    background-color: #3D2B22;
+    color: #DCCFBC;
+    border: 1px solid #C08B5C;
     padding: 12px 24px;
     border-radius: 8px;
     font-weight: 600;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: all 0.2s;
 }
-.btn-secondary:hover { background-color: #cbd5e1; }
-.edit-btn { background-color: #fef3c7; color: #d97706; }
-.edit-btn:hover { background-color: #fde68a; }
 
-.delete-btn { background-color: #fee2e2; color: #dc2626; }
-.delete-btn:hover { background-color: #fecaca; }
+.btn-secondary:hover {
+    background-color: #241A16;
+    color: #FFF1DC;
+}
+
+/* Nút hành động nhỏ trong bảng (Sửa, Xóa) */
+.action-btn {
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    margin: 0 3px;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+.edit-btn {
+    background-color: rgba(192, 139, 92, 0.15);
+    color: #C08B5C;
+    border: 1px solid rgba(192, 139, 92, 0.3);
+}
+
+.edit-btn:hover {
+    background-color: #C08B5C;
+    color: #0B0908;
+}
+
+.delete-btn {
+    background-color: rgba(220, 38, 38, 0.15);
+    /* Giữ lại chút sắc đỏ nhạt để cảnh báo xóa dữ liệu */
+    color: #dc2626;
+    border: 1px solid rgba(220, 38, 38, 0.3);
+}
+
+.delete-btn:hover {
+    background-color: #dc2626;
+    color: #ffffff;
+}
+
+/* ==========================================
+   BỔ SUNG ĐỒNG BỘ ĐỐI TƯỢNG ĐẶC BIỆT TRONG FORM
+   ========================================== */
+.input-group select {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid #3D2B22;
+    border-radius: 8px;
+    font-size: 15px;
+    color: #FFF1DC;
+    background-color: #0B0908;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.input-group select:focus {
+    outline: none;
+    border-color: #C08B5C;
+    box-shadow: 0 0 0 3px rgba(192, 139, 92, 0.15);
+}
+
+/* Định dạng ô chọn tệp ảnh chìm vào nền */
+.input-group input[type="file"] {
+    background-color: #0B0908;
+    color: #DCCFBC;
+    border: 1px solid #3D2B22;
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+}

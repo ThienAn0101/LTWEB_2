@@ -16,8 +16,8 @@
                 <span class="logo-text">3T <span class="highlight">Story</span></span>
             </div>
             <nav class="menu">
-                <a href="#" class="menu-item"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
-                <a href="#" class="menu-item"><i class="fa-solid fa-users"></i> Đọc giả</a>
+                <a href="dashboard.html" class="menu-item"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+                <a href="manage-users.html" class="menu-item"><i class="fa-solid fa-users"></i> Đọc giả</a>
                 <a href="admin.html" class="menu-item"><i class="fa-solid fa-list"></i> Danh mục truyện</a>
                 <a href="manage-books.html" class="menu-item active"><i class="fa-solid fa-book"></i> Quản lý Truyện</a>
             </nav>
@@ -28,99 +28,81 @@
                 <div class="system-title">3T STORY <span class="sub-title">MANAGEMENT SYSTEM</span></div>
             </header>
 
-            <section class="content-body" style="padding: 30px;">
+            <section class="content-body">
+                <div class="table-card">
 
-                <div class="form-card"
-                    style="width: 100%; background: #fff; padding: 30px; border-radius: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.02);">
-
-                    <div
-                        style="display: flex; align-items: center; gap: 10px; margin-bottom: 30px; border-bottom: 1px solid #f1f5f9; padding-bottom: 15px;">
-                        <a href="manage-books.html"
-                            style="text-decoration: none; color: #1e293b; font-size: 20px; display: flex; align-items: center;">
+                    <div class="form-title-container">
+                        <a href="manage-books.html" class="back-link-icon">
                             <i class="fa-solid fa-arrow-left"></i>
                         </a>
-                        <h2 style="font-size: 22px; color: #1e293b; font-weight: 700; margin: 0;">
+                        <h2 class="main-form-title">
                             Chỉnh Sửa Thông Tin Bộ Truyện (ID: #<span id="book-id-text"></span>)
                         </h2>
                     </div>
 
                     <form id="edit-book-form">
-                        <div style="display: flex; gap: 30px; flex-wrap: wrap; margin-bottom: 25px;">
+                        <div class="horizontal-form">
 
-                            <div style="flex: 1; min-width: 300px;">
-                                <div style="margin-bottom: 20px;">
-                                    <label
-                                        style="display: block; margin-bottom: 8px; font-weight: 600; color: #334155; font-size: 14px;">Tên
-                                        bộ truyện <span style="color:red;">*</span></label>
-                                    <input type="text" id="title" required
-                                        style="width: 100%; padding: 12px 16px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px;">
+                            <div class="form-column">
+                                <div class="input-group">
+                                    <label for="title">Tên bộ truyện <span style="color: #dc2626;">*</span></label>
+                                    <input type="text" id="title" required>
                                 </div>
 
-                                <div style="margin-bottom: 20px;">
-                                    <label
-                                        style="display: block; margin-bottom: 8px; font-weight: 600; color: #334155; font-size: 14px;">Tác
-                                        giả</label>
-                                    <input type="text" id="author"
-                                        style="width: 100%; padding: 12px 16px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px;">
+                                <div class="input-group">
+                                    <label for="author">Tác giả</label>
+                                    <input type="text" id="author">
                                 </div>
 
-                                <div style="margin-bottom: 20px;">
-                                    <label
-                                        style="display: block; margin-bottom: 8px; font-weight: 600; color: #334155; font-size: 14px;">Thuộc
-                                        Danh mục/Thể loại <span style="color:red;">*</span></label>
-                                    <select id="category-select" required
-                                        style="width: 100%; padding: 12px 16px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; background: #fff;">
-                                        <option value="">-- Chọn danh mục truyện --</option>
+                                <div class="input-group">
+                                    <label for="category-select">Thuộc Danh mục/Thể loại <span
+                                            style="color: #dc2626;">*</span></label>
+                                    <select id="category-select" required>
+                                        <option value="" style="background-color: #241A16;">-- Chọn danh mục truyện --
+                                        </option>
                                     </select>
                                 </div>
 
-                                <div>
-                                    <label
-                                        style="display: block; margin-bottom: 8px; font-weight: 600; color: #334155; font-size: 14px;">Thay
-                                        đổi ảnh bìa mới (Bỏ trống nếu giữ nguyên ảnh cũ)</label>
-                                    <input type="file" id="coverFile" accept="image/*"
-                                        style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; background: #f8fafc;">
+                                <div class="input-group">
+                                    <label for="coverFile">Thay đổi ảnh bìa mới (Bỏ trống nếu giữ nguyên ảnh cũ)</label>
+                                    <input type="file" id="coverFile" accept="image/*">
+
                                     <div id="current-cover-container"
-                                        style="margin-top: 10px; font-size: 13px; color: #64748b;">
+                                        style="margin-top: 10px; font-size: 13px; color: #DCCFBC;">
                                         Ảnh hiện tại: <a id="current-cover-link" href="#" target="_blank"
-                                            style="color: #3b82f6;">Xem ảnh</a>
+                                            style="color: #C08B5C; text-decoration: underline;">Xem ảnh</a>
                                     </div>
                                 </div>
                             </div>
 
-                            <div style="flex: 1; min-width: 300px; display: flex; flex-direction: column;">
-                                <label
-                                    style="display: block; margin-bottom: 8px; font-weight: 600; color: #334155; font-size: 14px;">Tóm
-                                    tắt nội dung</label>
-                                <textarea id="summary"
-                                    style="width: 100%; flex: 1; min-height: 250px; padding: 12px 16px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; resize: none; font-family: inherit;"></textarea>
+                            <div class="form-column">
+                                <div class="input-group">
+                                    <label for="summary">Tóm tắt nội dung</label>
+                                    <textarea id="summary" placeholder="Nhập tóm tắt cốt truyện..."
+                                        rows="12"></textarea>
+                                </div>
                             </div>
 
                         </div>
 
-                        <div
-                            style="display: flex; gap: 12px; justify-content: flex-end; border-top: 1px solid #f1f5f9; padding-top: 20px;">
-                            <button type="button" onclick="location.href='manage-books.html'"
-                                style="padding: 10px 24px; background: #e2e8f0; color: #475569; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">Hủy
+                        <div class="form-actions-container">
+                            <button type="button" class="btn-secondary" onclick="location.href='manage-books.html'">Hủy
                                 bỏ</button>
-                            <button type="submit"
-                                style="padding: 10px 24px; background: #10b981; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">Cập
-                                nhật truyện</button>
+                            <button type="submit" class="btn-primary">Cập nhật truyện</button>
                         </div>
                     </form>
                 </div>
-
             </section>
         </main>
     </div>
 
     <script>
         const urlParams = new URLSearchParams(window.location.search);
-        const bookId = urlParams.get('id'); // Lấy id truyện từ thanh địa chỉ URL
+        const bookId = urlParams.get('id');
 
         document.getElementById('book-id-text').textContent = bookId;
 
-        // 1. Load toàn bộ danh mục vào thẻ Select trước
+        // 1. Tải danh sách danh mục vào ô Select trước
         function loadCategories() {
             return fetch('http://localhost:8080/api/categories')
                 .then(res => res.json())
@@ -130,12 +112,13 @@
                         const opt = document.createElement('option');
                         opt.value = cat.id;
                         opt.textContent = cat.name;
+                        opt.style.backgroundColor = '#241A16'; // Giữ option tiệp màu tối
                         select.appendChild(opt);
                     });
                 });
         }
 
-        // 2. Load dữ liệu cũ của bộ truyện điền vào Form
+        // 2. Tải thông tin cũ điền ngược vào Form
         function loadBookDetails() {
             fetch(`http://localhost:8080/api/books/${bookId}`)
                 .then(res => res.json())
@@ -155,10 +138,10 @@
                 .catch(err => console.error('Lỗi tải chi tiết truyện:', err));
         }
 
-        // Chạy tuần tự: Load danh mục xong mới load dữ liệu truyện
+        // Chạy tuần tự logic đổ dữ liệu
         loadCategories().then(loadBookDetails);
 
-        // 3. Xử lý sự kiện Submit để cập nhật thông tin (Gửi PUT)
+        // 3. Xử lý sự kiện gửi dữ liệu cập nhật (PUT)
         document.getElementById('edit-book-form').addEventListener('submit', function (e) {
             e.preventDefault();
             const formData = new FormData();
@@ -179,7 +162,7 @@
             const categoryId = document.getElementById('category-select').value;
 
             fetch(`http://localhost:8080/api/books/${bookId}?categoryId=${categoryId}`, {
-                method: 'PUT', // Sử dụng method PUT để chỉnh sửa dữ liệu
+                method: 'PUT',
                 body: formData
             })
                 .then(response => {

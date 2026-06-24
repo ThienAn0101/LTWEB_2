@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard - 3T Story</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .stats-grid {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+        }
+
+        /* Kế thừa màu nền gỗ trầm trầm đồng điệu hệ thống */
+        .stat-card {
+            flex: 1;
+            min-width: 220px;
+            background: #241A16;
+            padding: 25px;
+            border-radius: 16px;
+            border: 1px solid #3D2B22;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .stat-info .stat-label {
+            font-size: 13px;
+            color: #C08B5C;
+            font-weight: 700;
+            margin-bottom: 5px;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-info .stat-value {
+            font-size: 32px;
+            color: #FFF1DC;
+            font-weight: 700;
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            background: #0B0908;
+            color: #C08B5C;
+            border: 1px solid #3D2B22;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="logo-container">
+                <span class="logo-text">3T <span class="highlight">Story</span></span>
+            </div>
+            <nav class="menu">
+                <a href="dashboard.html" class="menu-item active"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+                <a href="manage-users.html" class="menu-item"><i class="fa-solid fa-users"></i> Đọc giả</a>
+                <a href="admin.html" class="menu-item"><i class="fa-solid fa-list"></i> Danh mục truyện</a>
+                <a href="manage-books.html" class="menu-item"><i class="fa-solid fa-book"></i> Quản lý Truyện</a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="top-header">
+                <div class="system-title">3T STORY <span class="sub-title">MANAGEMENT SYSTEM</span></div>
+                <div class="admin-profile">
+                    <div class="admin-info">
+                        <span class="role">👑 ADMIN</span>
+                        <span class="name">TIÊN LÊ</span>
+                    </div>
+                    <div class="avatar">TL</div>
+                </div>
+            </header>
+
+            <section class="content-body">
+                <div class="table-header">
+                    <h2><i class="fa-solid fa-chart-pie"></i> Tổng quan hệ thống</h2>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-info">
+                            <div class="stat-label">DANH MỤC TRUYỆN</div>
+                            <div class="stat-value" id="count-categories">0</div>
+                        </div>
+                        <div class="stat-icon"><i class="fa-solid fa-list"></i></div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-info">
+                            <div class="stat-label">TỔNG SỐ TRUYỆN</div>
+                            <div class="stat-value" id="count-books">0</div>
+                        </div>
+                        <div class="stat-icon"><i class="fa-solid fa-book"></i></div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-info">
+                            <div class="stat-label">TỔNG SỐ ĐỘC GIẢ</div>
+                            <div class="stat-value" id="count-users">0</div>
+                        </div>
+                        <div class="stat-icon"><i class="fa-solid fa-users"></i></div>
+                    </div>
+                </div>
+
+                <div class="table-card">
+                    <h3 style="color: #FFF1DC; margin-top: 0; margin-bottom: 12px; font-size: 18px;">Chào mừng Admin
+                        quay trở lại hệ thống! 👋</h3>
+                    <p style="color: #DCCFBC; font-size: 14px; line-height: 1.6; margin: 0;">Hệ thống 3T Story đang hoạt
+                        động ổn định. Bạn có thể sử dụng menu bên trái để quản lý nội dung danh mục truyện, tải lên các
+                        bộ truyện mới hoặc quản lý trạng thái hoạt động của các độc giả trên hệ thống.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        function loadDashboardStats() {
+            fetch('http://localhost:8080/api/dashboard/stats')
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById('count-categories').textContent = data.totalCategories;
+                    document.getElementById('count-books').textContent = data.totalBooks;
+                    document.getElementById('count-users').textContent = data.totalUsers;
+                })
+                .catch(err => console.error(err));
+        }
+        loadDashboardStats();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Quản Lý Độc Giả - 3T Story</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Giữ lại 2 thuộc tính badge trạng thái tiệp màu gỗ tối của bạn */
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-active {
+            background-color: rgba(16, 185, 129, 0.15);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .status-locked {
+            background-color: rgba(220, 38, 38, 0.15);
+            color: #dc2626;
+            border: 1px solid rgba(220, 38, 38, 0.3);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="logo-container">
+                <span class="logo-text">3T <span class="highlight">Story</span></span>
+            </div>
+            <nav class="menu">
+                <a href="dashboard.html" class="menu-item"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+                <a href="manage-users.html" class="menu-item active"><i class="fa-solid fa-users"></i> Đọc giả</a>
+                <a href="admin.html" class="menu-item"><i class="fa-solid fa-list"></i> Danh mục truyện</a>
+                <a href="manage-books.html" class="menu-item"><i class="fa-solid fa-book"></i> Quản lý Truyện</a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="top-header">
+                <div class="system-title">3T STORY <span class="sub-title">MANAGEMENT SYSTEM</span></div>
+                <div class="admin-profile">
+                    <div class="admin-info">
+                        <span class="role">👑 ADMIN</span>
+                        <span class="name">TIÊN LÊ</span>
+                    </div>
+                    <div class="avatar">TL</div>
+                </div>
+            </header>
+
+            <section class="content-body">
+                <div class="table-card">
+
+                    <div class="table-header">
+                        <h2><i class="fa-solid fa-users"></i> Quản Lý Danh Sách Độc Giả</h2>
+                    </div>
+
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Tài khoản</th>
+                                <th>Tên độc giả</th>
+                                <th>Email</th>
+                                <th>Ngày tham gia</th>
+                                <th>Trạng thái</th>
+                                <th style="text-align: center;">Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody id="user-table-body">
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        const USER_API = 'http://localhost:8080/api/users';
+
+        function loadUsers() {
+            fetch(USER_API)
+                .then(res => res.json())
+                .then(users => {
+                    const tbody = document.getElementById('user-table-body');
+                    tbody.innerHTML = '';
+
+                    users.forEach(user => {
+                        const tr = document.createElement('tr');
+
+                        const statusHtml = user.active
+                            ? `<span class="status-badge status-active">Hoạt động</span>`
+                            : `<span class="status-badge status-locked">Bị khóa</span>`;
+
+                        const actionBtn = user.active
+                            ? `<button class="action-btn delete-btn" style="padding: 6px 14px;" onclick="toggleStatus(${user.id}, '${user.username}', true)"><i class="fa-solid fa-lock"></i> Khóa</button>`
+                            : `<button class="action-btn edit-btn" style="padding: 6px 14px;" onclick="toggleStatus(${user.id}, '${user.username}', false)"><i class="fa-solid fa-lock-open"></i> Mở khóa</button>`;
+
+                        tr.innerHTML = `
+                            <td><strong>#${user.id}</strong></td>
+                            <td style="font-weight: 600; color: #F8F3E9;">${user.username}</td>
+                            <td style="color: #F8F3E9;">${user.fullName || 'Chưa cập nhật'}</td>
+                            <td style="color: #F8F3E9;">${user.email || 'Không có'}</td>
+                            <td style="color: #DCCFBC;">${user.joinDate || 'Vừa xong'}</td>
+                            <td>${statusHtml}</td>
+                            <td style="text-align: center;">${actionBtn}</td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                });
+        }
+
+        function toggleStatus(id, username, isLocking) {
+            const actionText = isLocking ? "KHÓA" : "MỞ KHÓA";
+            if (confirm(`Bạn có chắc muốn ${actionText} tài khoản "${username}" không?`)) {
+                fetch(`${USER_API}/${id}/toggle-status`, { method: 'PUT' })
+                    .then(res => { if (res.ok) loadUsers(); });
+            }
+        }
+        loadUsers();
+    </script>
+</body>
+
+</html>

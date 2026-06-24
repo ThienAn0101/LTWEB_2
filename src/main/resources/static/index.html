@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3T Story - Góc Đọc Sách Thư Giãn</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        body {
+            background-color: #F2E7D4;
+            /* [Giấy kem nhạt] Toàn không gian sáng dịu, ấm nhẹ */
+            color: #8A6B4A;
+            /* [Gỗ chiều sâu] Màu chữ phụ/tiêu đề nhẹ nhàng */
+            margin: 0;
+            font-family: "Georgia", serif;
+        }
+
+        .client-body {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Header nhạt hơn, hòa quyện với không gian */
+        .client-header {
+            background-color: #C7AD84;
+            /* [Gỗ nhạt tĩnh lặng] Hạ tông tối */
+            border-bottom: 2px solid #C08B5C;
+            /* [Ánh đèn đọc sách] */
+            padding: 15px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(138, 107, 74, 0.1);
+        }
+
+        .logo-text {
+            font-size: 24px;
+            font-weight: 700;
+            color: #FDFBF7;
+            /* Trắng ngà sách cổ */
+            text-decoration: none;
+            letter-spacing: 1px;
+            cursor: pointer;
+        }
+
+        .logo-text .highlight {
+            color: #8A6B4A;
+            background-color: #F2E7D4;
+            /* Kem nhạt */
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-left: 6px;
+        }
+
+        /* Thanh tìm kiếm thanh lịch */
+        .search-bar {
+            display: flex;
+            background-color: #D6BE98;
+            /* Màu nền trung gian mềm mại */
+            border: 1px solid #C08B5C;
+            border-radius: 6px;
+            padding: 6px 14px;
+            width: 320px;
+            align-items: center;
+        }
+
+        .search-bar input {
+            background: none;
+            border: none;
+            color: #FDFBF7;
+            /* Chữ trắng ngà khi gõ */
+            width: 100%;
+            font-size: 14px;
+            outline: none;
+            padding-left: 8px;
+        }
+
+        .search-bar input::placeholder {
+            color: #F2E7D4;
+        }
+
+        .search-bar i {
+            color: #FDFBF7;
+        }
+
+        .admin-link {
+            color: #FDFBF7;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            padding: 7px 14px;
+            border-radius: 4px;
+            border: 1px solid #C08B5C;
+            background-color: #D6BE98;
+            transition: all 0.3s;
+        }
+
+        .admin-link:hover {
+            background: #FDFBF7;
+            color: #8A6B4A;
+            border-color: #FDFBF7;
+        }
+
+        /* Tiêu đề góc đọc sách tĩnh lặng */
+        .section-title {
+            color: #8A6B4A;
+            font-size: 22px;
+            border-left: 3px solid #C08B5C;
+            padding-left: 10px;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+
+        .books-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(185px, 1fr));
+            gap: 30px;
+        }
+
+        /* Thẻ truyện màu gỗ nhạt, đồng điệu tuyệt đối */
+        .book-card {
+            background-color: #C7AD84;
+            /* [Gỗ nhạt tĩnh lặng] Thay cho màu đậm cũ */
+            border: 1px solid #D6BE98;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            text-decoration: none;
+            box-shadow: 0 4px 10px rgba(138, 107, 74, 0.08);
+        }
+
+        .book-card:hover {
+            transform: translateY(-4px);
+            border-color: #C08B5C;
+            background-color: #BEA277;
+            /* Đậm nhẹ tạo chiều sâu khi rê chuột */
+            box-shadow: 0 6px 15px rgba(138, 107, 74, 0.15);
+        }
+
+        .book-card-cover {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            border-bottom: 1px solid #D6BE98;
+        }
+
+        .book-card-info {
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .book-card-title {
+            font-size: 15px;
+            color: #FDFBF7;
+            /* Chữ trắng ngà của giấy sách */
+            font-weight: 600;
+            margin: 0 0 6px 0;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .book-card-author {
+            font-size: 13px;
+            color: #F2E7D4;
+            /* Kem nhạt dịu mắt */
+            margin: 0 0 12px 0;
+        }
+
+        .book-card-category {
+            font-size: 11px;
+            color: #FDFBF7;
+            background-color: #C08B5C;
+            /* Ánh đèn đọc sách rọi nhẹ vào nhãn */
+            padding: 3px 8px;
+            border-radius: 4px;
+            align-self: flex-start;
+            margin-top: auto;
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="client-header">
+        <div class="logo-container">
+            <span class="logo-text" onclick="location.href='index.html'">3T <span class="highlight">Story</span></span>
+        </div>
+        <div class="search-bar">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="searchInput" placeholder="Tìm kiếm tựa truyện nhẹ nhàng...">
+        </div>
+        <a href="manage-books.html" class="admin-link">
+            <i class="fa-solid fa-user-shield"></i> Góc Quản Trị
+        </a>
+    </header>
+
+    <main class="client-body">
+        <h2 class="section-title">☕ GÓC THƯ GIÃN</h2>
+        <div class="books-grid" id="books-container">
+            <p style="color: #8A6B4A; grid-column: 1/-1; text-align: center;">Đang sửa soạn giá sách...</p>
+        </div>
+    </main>
+
+    <script>
+        const BOOK_API = 'http://localhost:8080/api/books';
+        function loadAllBooksToHome() {
+            fetch(BOOK_API)
+                .then(response => {
+                    if (!response.ok) throw new Error("Lỗi!");
+                    return response.json();
+                })
+                .then(books => {
+                    const container = document.getElementById('books-container');
+                    container.innerHTML = '';
+                    if (books.length === 0) {
+                        container.innerHTML = `<p style="color: #8A6B4A; grid-column: 1/-1; text-align: center;">Chưa có cuốn sách nào được đặt ở đây.</p>`;
+                        return;
+                    }
+                    books.forEach(book => {
+                        const coverImgUrl = book.coverUrl ? `http://localhost:8080${book.coverUrl}` : 'https://via.placeholder.com/180x240/C7AD84/FDFBF7?text=3T+Story';
+                        const categoryName = book.category ? book.category.name : 'Truyện Chữ';
+
+                        const bookLink = document.createElement('a');
+                        bookLink.className = 'book-card';
+                        bookLink.href = `detail-book.html?id=${book.id}`;
+                        bookLink.innerHTML = `
+                            <img src="${coverImgUrl}" alt="${book.title}" class="book-card-cover" onerror="this.src='https://via.placeholder.com/180x240/C7AD84/FDFBF7?text=3T+Story'">
+                            <div class="book-card-info">
+                                <h3 class="book-card-title">${book.title}</h3>
+                                <p class="book-card-author"><i class="fa-regular fa-user"></i> ${book.author || 'Khuyết Danh'}</p>
+                                <span class="book-card-category">${categoryName}</span>
+                            </div>
+                        `;
+                        container.appendChild(bookLink);
+                    });
+                })
+                .catch(error => {
+                    document.getElementById('books-container').innerHTML = `<p style="color: #8A6B4A; grid-column: 1/-1; text-align: center;">❌ Lỗi kết nối đến thư viện Spring Boot.</p>`;
+                });
+        }
+        window.addEventListener('DOMContentLoaded', loadAllBooksToHome);
+    </script>
+</body>
+
+</html>

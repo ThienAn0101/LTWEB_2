@@ -1,15 +1,13 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <title>Quản Lý Truyện - 3T Story</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
-    <style>
-        .book-cover { width: 50px; height: 70px; object-fit: cover; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .text-ellipsis { max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #64748b; font-size: 14px; }
-    </style>
 </head>
+
 <body>
 
     <div class="app-container">
@@ -18,8 +16,8 @@
                 <span class="logo-text">3T <span class="highlight">Story</span></span>
             </div>
             <nav class="menu">
-                <a href="#" class="menu-item"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
-                <a href="#" class="menu-item"><i class="fa-solid fa-users"></i> Đọc giả</a>
+                <a href="dashboard.html" class="menu-item"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+                <a href="manage-users.html" class="menu-item"><i class="fa-solid fa-users"></i> Đọc giả</a>
                 <a href="admin.html" class="menu-item"><i class="fa-solid fa-list"></i> Danh mục truyện</a>
                 <a href="manage-books.html" class="menu-item active"><i class="fa-solid fa-book"></i> Quản lý Truyện</a>
             </nav>
@@ -29,35 +27,36 @@
             <header class="top-header">
                 <div class="system-title">3T STORY <span class="sub-title">MANAGEMENT SYSTEM</span></div>
                 <div class="admin-profile">
-                    <div class="admin-info"><span class="role">👑 ADMIN</span><span class="name">TIÊN LÊ</span></div>
-                    <div class="avatar">T</div>
+                    <div class="admin-info">
+                        <span class="role">👑 ADMIN</span>
+                        <span class="name">TIÊN LÊ</span>
+                    </div>
+                    <div class="avatar">TL</div>
                 </div>
             </header>
 
             <section class="content-body">
                 <div class="table-card">
+
                     <div class="table-header">
-                        <h2><i class="fa-solid fa-book-open"></i> Danh Sách Các Bộ Truyện</h2>
+                        <h2><i class="fa-solid fa-book"></i> Danh Sách Các Bộ Truyện</h2>
                         <button class="add-btn" onclick="location.href='add-book.html'">
                             <i class="fa-solid fa-plus"></i> Thêm truyện mới
                         </button>
                     </div>
-                    
+
                     <table class="data-table">
                         <thead>
                             <tr>
-                                <th style="width: 8%">ID</th>
-                                <th style="width: 12%">Ảnh bìa</th>
-                                <th style="width: 25%">Tên truyện</th>
-                                <th style="width: 15%">Tác giả</th>
-                                <th style="width: 15%">Danh mục</th>
-                                <th style="width: 15%; text-align: center;">Hành động</th>
+                                <th>ID</th>
+                                <th>Ảnh bìa</th>
+                                <th>Tên truyện</th>
+                                <th>Tác giả</th>
+                                <th>Danh mục</th>
+                                <th style="text-align: center;">Hành động</th>
                             </tr>
                         </thead>
                         <tbody id="book-table-body">
-                            <tr>
-                                <td colspan="6" style="text-align: center; color: #94a3b8;">Đang tải danh sách truyện...</td>
-                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -66,77 +65,52 @@
     </div>
 
     <script>
-        const API_URL = 'http://localhost:8080/api/books';
+        const BOOK_API = 'http://localhost:8080/api/books';
 
         function loadBooks() {
-            fetch(API_URL)
-                .then(response => response.json())
-                .then(data => {
+            fetch(BOOK_API)
+                .then(res => res.json())
+                .then(books => {
                     const tbody = document.getElementById('book-table-body');
-                    tbody.innerHTML = ''; 
+                    tbody.innerHTML = '';
 
-                    if(data.length === 0) {
-                        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #94a3b8;">Chưa có cuốn truyện nào trong database. Hãy thêm mới!</td></tr>`;
+                    if (books.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding: 30px; color:#C08B5C;">Chưa có cuốn truyện nào trong database. Hãy thêm mới!</td></tr>`;
                         return;
                     }
 
-                    data.forEach(book => {
-                        const row = document.createElement('tr');
-                        // Nếu không có ảnh thì lấy ảnh mặc định tạm thời
-                        const coverImg = book.coverUrl ? book.coverUrl : 'https://via.placeholder.com/50x70?text=No+Cover';
-                        
-                       row.innerHTML = `
+                    books.forEach(book => {
+                        const tr = document.createElement('tr');
+
+                        const coverImg = book.coverUrl
+                            ? `<img src="http://localhost:8080${book.coverUrl}" style="width: 50px; height: 70px; object-fit: cover; border-radius: 6px; border: 1px solid #3D2B22;">`
+                            : `<span style="color: #C08B5C; font-size: 13px;">Không ảnh</span>`;
+
+                        tr.innerHTML = `
                             <td><strong>#${book.id}</strong></td>
-                            <td><img src="${coverImg}" class="book-cover" alt="cover"></td>
-                            <td><span style="font-weight: 600; color: #1e293b;">${book.title}</span></td>
-                            <td>${book.author || 'Ẩn danh'}</td>
+                            <td>${coverImg}</td>
+                            <td style="font-weight: 600; color: #F8F3E9;">${book.title}</td>
+                            <td style="color: #F8F3E9;">${book.author || 'Ẩn danh'}</td>
                             <td><span class="category-badge">${book.category ? book.category.name : 'Chưa phân loại'}</span></td>
                             <td style="text-align: center;">
-                                <button class="action-btn edit-btn" title="Sửa" onclick="location.href='edit-book.html?id=${book.id}'">
-                                    <i class="fa-solid fa-pen-to-square"></i>
-                                </button>
-                                <button class="action-btn delete-btn" title="Xóa" onclick="deleteBook(${book.id}, '${book.title}')">
-                                    <i class="fa-solid fa-trash"></i>
-                                </button>
+                                <button class="action-btn edit-btn" onclick="location.href='edit-book.html?id=${book.id}'"><i class="fa-solid fa-pen-to-square"></i></button>
+                                <button class="action-btn delete-btn" onclick="deleteBook(${book.id}, '${book.title}')"><i class="fa-solid fa-trash"></i></button>
                             </td>
                         `;
-                        tbody.appendChild(row);
+                        tbody.appendChild(tr);
                     });
                 })
-                .catch(error => console.error('Lỗi kết nối API:', error));
+                .catch(err => console.error(err));
         }
-
-        loadBooks();
 
         function deleteBook(id, title) {
             if (confirm(`Bạn có chắc muốn xóa bộ truyện "${title}" không?`)) {
-                fetch(`${API_URL}/${id}`, { method: 'DELETE' })
-                .then(res => {
-                    if(res.ok) { alert("Xóa truyện thành công!"); loadBooks(); }
-                });
+                fetch(`${BOOK_API}/${id}`, { method: 'DELETE' })
+                    .then(res => { if (res.ok) loadBooks(); });
             }
         }
-
-        function deleteBook(id, title) {
-            // Hiển thị hộp thoại hỏi xác nhận trước khi xóa để tránh bấm nhầm
-            if (confirm(`Bạn có chắc chắn muốn xóa bộ truyện "${title}" (ID: #${id}) không?`)) {
-
-                // Gọi API DELETE lên Backend
-                fetch(`http://localhost:8080/api/books/${id}`, {
-                    method: 'DELETE'
-                })
-                    .then(response => {
-                        if (response.ok) {
-                            alert("Xóa truyện thành công! 🗑️");
-                            // Tải lại danh sách truyện để cập nhật bảng dữ liệu
-                            loadBooks();
-                        } else {
-                            alert("Không thể xóa bộ truyện này.");
-                        }
-                    })
-                    .catch(error => console.error('Lỗi khi xóa truyện:', error));
-            }
-        }
+        loadBooks();
     </script>
 </body>
+
 </html>

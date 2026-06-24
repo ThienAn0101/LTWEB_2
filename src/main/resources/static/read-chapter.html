@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đang đọc chương... - 3T Story</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        body {
+            background-color: #F2E7D4;
+            /* [Giấy kem nhạt] Tối ưu cho mắt khi đọc lâu */
+            color: #4A3B2C;
+            /* Màu chữ nâu trầm sâu lắng, không dùng màu đen tuyền gây mỏi mắt */
+            margin: 0;
+            font-family: "Georgia", serif;
+            /* Phông chữ có chân kinh điển của sách giấy */
+            line-height: 2.0;
+            /* Khoảng cách dòng rộng rãi, dễ theo dõi */
+        }
+
+        .reading-container {
+            max-width: 800px;
+            /* Bóp hẹp chiều rộng vừa tầm mắt liếc, không bị mỏi cổ */
+            margin: 0 auto;
+            padding: 40px 20px 100px 20px;
+        }
+
+        /* Thanh công cụ nhỏ phía trên */
+        .reading-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px dashed #C7AD84;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+        }
+
+        .action-btn {
+            color: #8A6B4A;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: color 0.2s;
+        }
+
+        .action-btn:hover {
+            color: #C08B5C;
+            /* Ánh đèn rực lên */
+        }
+
+        /* Phần tên truyện và tiêu đề chương */
+        .story-title {
+            font-size: 16px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #8A6B4A;
+            text-align: center;
+            margin: 0 0 10px 0;
+        }
+
+        .chapter-title {
+            font-size: 26px;
+            color: #8A6B4A;
+            text-align: center;
+            margin: 0 0 40px 0;
+            font-weight: 700;
+            line-height: 1.4;
+        }
+
+        /* Khung chứa nội dung chữ truyện chính thức */
+        .chapter-content {
+            font-size: 20px;
+            /* Cỡ chữ vừa vặn, ấm áp như lật sách */
+            color: #3D3124;
+            /* Đậm hơn tiêu đề một chút để tập trung thị giác */
+            text-align: justify;
+            /* Căn đều hai bên giống trang sách in */
+            white-space: pre-line;
+            /* Giữ nguyên các đoạn xuống dòng từ Database */
+            margin-bottom: 50px;
+        }
+
+        /* Thanh điều hướng Chương Trước / Chương Sau ở đáy trang */
+        .navigation-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px dashed #C7AD84;
+            padding-top: 30px;
+            margin-top: 50px;
+        }
+
+        .nav-btn {
+            background-color: #C7AD84;
+            /* Gỗ nhạt tĩnh lặng */
+            color: #FDFBF7;
+            /* Chữ trắng ngà */
+            border: 1px solid #D6BE98;
+            padding: 10px 24px;
+            font-size: 15px;
+            font-weight: 600;
+            border-radius: 4px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .nav-btn:hover {
+            background-color: #C08B5C;
+            /* Ánh đèn rọi ấm áp */
+            transform: translateY(-1px);
+        }
+
+        .nav-btn.disabled {
+            background-color: #E6DBC4;
+            color: #BEB29A;
+            border-color: #E6DBC4;
+            cursor: not-allowed;
+            pointer-events: none;
+            /* Khóa không cho bấm */
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="reading-container">
+        <div class="reading-actions">
+            <a href="#" id="back-to-detail" class="action-btn">
+                <i class="fa-solid fa-arrow-left"></i> Trở về tủ sách
+            </a>
+            <a href="index.html" class="action-btn">
+                <i class="fa-solid fa-house"></i> Trang chủ
+            </a>
+        </div>
+
+        <p class="story-title" id="text-story-title">Tên Bộ Truyện</p>
+        <h1 class="chapter-title" id="text-chapter-title">Chương...: Đang mở hòm sách...</h1>
+
+        <div class="chapter-content" id="chapter-text-content">
+            Đang thắp đèn đọc sách, xin vui lòng đợi trong giây lát...
+        </div>
+
+        <div class="navigation-bar">
+            <a href="#" id="btn-prev" class="nav-btn"><i class="fa-solid fa-chevron-left"></i> Chương trước</a>
+            <a href="#" id="btn-next" class="nav-btn">Chương sau <i class="fa-solid fa-chevron-right"></i></a>
+        </div>
+    </div>
+
+    <script>
+        // 1. Phân tích tham số trên URL (?bookId=...&chapter=...)
+        const urlParams = new URLSearchParams(window.location.search);
+        const bookId = urlParams.get('bookId');
+        let currentChapter = parseInt(urlParams.get('chapter')) || 1;
+
+        if (!bookId) {
+            location.href = 'index.html';
+        }
+
+        // Cập nhật nút quay lại trang chi tiết đúng ID của truyện
+        document.getElementById('back-to-detail').href = `detail-book.html?id=${bookId}`;
+
+        // 2. Hàm gọi API từ Spring Boot lấy nội dung chương
+        function loadChapterData() {
+            // Giả định API Backend của bạn có cấu trúc: /api/books/{bookId}/chapters/{chapterNumber}
+            // (Nếu Backend của bạn đặt tên khác, hãy điều chỉnh lại URL fetch này nhé!)
+            const API_URL = `http://localhost:8080/api/books/${bookId}/chapters/${currentChapter}`;
+
+            fetch(API_URL)
+                .then(response => {
+                    if (!response.ok) throw new Error("Hết chương hoặc lỗi dữ liệu");
+                    return response.json();
+                })
+                .then(data => {
+                    // Đổ dữ liệu từ Backend vào giao diện
+                    document.getElementById('text-story-title').textContent = data.bookTitle || "3T Story";
+                    document.getElementById('text-chapter-title').textContent = `Chương ${currentChapter}: ${data.title || ''}`;
+                    document.getElementById('chapter-text-content').textContent = data.content;
+
+                    // Xử lý logic ẩn/hiện hoặc bật/tắt nút Điều hướng
+                    // Nút quay lại chương trước
+                    const prevBtn = document.getElementById('btn-prev');
+                    if (currentChapter <= 1) {
+                        prevBtn.classList.add('disabled');
+                    } else {
+                        prevBtn.classList.remove('disabled');
+                        prevBtn.href = `read-chapter.html?bookId=${bookId}&chapter=${currentChapter - 1}`;
+                    }
+
+                    // Nút sang chương sau (Giả sử backend trả về cờ isLastChapter hoặc tự tính dựa trên tổng số chương)
+                    const nextBtn = document.getElementById('btn-next');
+                    if (data.isLastChapter) {
+                        nextBtn.classList.add('disabled');
+                    } else {
+                        nextBtn.classList.remove('disabled');
+                        nextBtn.href = `read-chapter.html?bookId=${bookId}&chapter=${currentChapter + 1}`;
+                    }
+
+                    // Cuộn màn hình mượt mà lên đầu trang mỗi khi chuyển chương
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                })
+                .catch(error => {
+                    // Xử lý báo lỗi nhẹ nhàng khi người dùng bấm quá số chương đang có
+                    document.getElementById('text-chapter-title').textContent = "Hết trọn bộ truyện";
+                    document.getElementById('chapter-text-content').innerHTML = `<p style="text-align:center; color:#8A6B4A;">Bạn đã đọc hết các chương hiện có của bộ truyện này rồi. Hãy quay lại tủ sách để chọn bộ truyện khác nhé! ☕</p>`;
+                    document.getElementById('btn-next').classList.add('disabled');
+
+                    if (currentChapter > 1) {
+                        document.getElementById('btn-prev').href = `read-chapter.html?bookId=${bookId}&chapter=${currentChapter - 1}`;
+                    } else {
+                        document.getElementById('btn-prev').classList.add('disabled');
+                    }
+                });
+        }
+
+        // Kích hoạt nạp dữ liệu khi trang web sẵn sàng
+        window.addEventListener('DOMContentLoaded', loadChapterData);
+    </script>
+</body>
+
+</html>
