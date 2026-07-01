@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Quản Lý Banner - 3T Story</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .banner-preview-img {
+            width: 180px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 6px;
+            border: 1px solid #3D2B22;
+        }
+
+        .quick-form-card {
+            background-color: #2D1F18;
+            border: 1px solid #3D2B22;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: flex-end;
+        }
+
+        .form-item {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .form-item label {
+            display: block;
+            color: #BEB29A;
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 6px;
+        }
+
+        .form-input {
+            width: 100%;
+            background-color: #3D2B22;
+            color: #F8F3E9;
+            border: 1px solid #C08B5C;
+            padding: 9px 12px;
+            border-radius: 4px;
+            outline: none;
+            box-sizing: border-box;
+        }
+
+        .form-input:focus {
+            border-color: #FDFBF7;
+        }
+
+        .submit-banner-btn {
+            background-color: #C08B5C;
+            color: #2D1F18;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            height: 38px;
+            transition: all 0.2s;
+        }
+
+        .submit-banner-btn:hover {
+            background-color: #FDFBF7;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="logo-container">
+                <span class="logo-text">3T <span class="highlight">Story</span></span>
+            </div>
+            <nav class="menu">
+                <a href="dashboard.html" class="menu-item"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+                <a href="manage-users.html" class="menu-item"><i class="fa-solid fa-users"></i> Đọc giả</a>
+                <a href="admin.html" class="menu-item"><i class="fa-solid fa-list"></i> Danh mục truyện</a>
+                <a href="manage-books.html" class="menu-item"><i class="fa-solid fa-book"></i> Quản lý Truyện</a>
+                <a href="manage-chapters.html" class="menu-item"><i class="fa-solid fa-list-ol"></i> Quản lý Chương</a>
+                <a href="manage-banners.html" class="menu-item active"><i class="fa-solid fa-images"></i> Quản lý
+                    Banner</a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="top-header">
+                <div class="system-title">3T STORY <span class="sub-title">MANAGEMENT SYSTEM</span></div>
+                <div class="admin-profile">
+                    <div class="admin-info">
+                        <span class="role">👑 ADMIN</span>
+                        <span class="name">TIÊN LÊ</span>
+                    </div>
+                    <div class="avatar">TL</div>
+                </div>
+            </header>
+
+            <section class="content-body">
+
+                <div class="quick-form-card">
+                    <h3 style="color: #C08B5C; margin-top: 0; margin-bottom: 15px;"><i class="fa-solid fa-plus"></i>
+                        Thêm nhanh Banner Quảng Cáo</h3>
+                    <form id="banner-form" onsubmit="addBanner(event)">
+                        <div class="form-row">
+                            <div class="form-item">
+                                <label>Tiêu đề chiến dịch / Truyện:</label>
+                                <input type="text" id="bannerTitle" class="form-input"
+                                    placeholder="Ví dụ: Siêu phẩm Tiên Hiệp 2026" required>
+                            </div>
+
+                            <div class="form-item">
+                                <label>Chọn ảnh từ máy tính (Ổ D, C...):</label>
+                                <input type="file" id="bannerImgFile" class="form-input" accept="image/*" required
+                                    style="padding: 6px;">
+                            </div>
+
+                            <div class="form-item">
+                                <label>Liên kết đến bộ truyện (Link):</label>
+                                <input type="text" id="bannerLink" class="form-input"
+                                    placeholder="detail-book.html?id=2">
+                            </div>
+                            <button type="submit" class="submit-banner-btn"><i class="fa-solid fa-paper-plane"></i> Thêm
+                                mới</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="table-card">
+                    <div class="table-header">
+                        <h2><i class="fa-solid fa-images"></i> Danh Sách Banner Trên Trang Chủ</h2>
+                    </div>
+
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 70px;">ID</th>
+                                <th style="width: 200px;">Hình ảnh xem trước</th>
+                                <th>Tiêu đề Banner</th>
+                                <th>Đường dẫn liên kết</th>
+                                <th style="text-align: center; width: 120px;">Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody id="banner-table-body">
+                        </tbody>
+                    </table>
+                </div>
+
+            </section>
+        </main>
+    </div>
+
+    <script>
+        const API_URL = "http://localhost:8080/api/banners";
+
+        // 1. Hàm load danh sách banner đổ lên bảng dữ liệu
+        function loadBanners() {
+            fetch(API_URL)
+                .then(res => res.json())
+                .then(data => {
+                    const tbody = document.getElementById("banner-table-body");
+                    tbody.innerHTML = "";
+
+                    if (!data || data.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:20px; color:#BEB29A;">Hiện chưa có banner quảng cáo nào được thiết lập.</td></tr>`;
+                        return;
+                    }
+
+                    data.forEach(banner => {
+                        const tr = document.createElement("tr");
+
+                        // Xử lý đường dẫn ảnh: Nếu ảnh lưu dạng local (/uploads/...) thì nối thêm host server vào để hiển thị chuẩn
+                        let finalImgUrl = banner.imageUrl;
+                        if (finalImgUrl && finalImgUrl.startsWith("/")) {
+                            finalImgUrl = "http://localhost:8080" + finalImgUrl;
+                        }
+
+                        tr.innerHTML = `
+                            <td><strong>#${banner.id}</strong></td>
+                            <td><img src="${finalImgUrl}" class="banner-preview-img" onerror="this.src='https://via.placeholder.com/180x80?text=Loi+Anh'"></td>
+                            <td><strong style="color: #FDFBF7;">${banner.title}</strong></td>
+                            <td style="color: #C08B5C; font-family: monospace;">${banner.linkToBook || 'Không có liên kết'}</td>
+                            <td style="text-align: center;">
+                                <button class="action-btn delete-btn" onclick="deleteBanner(${banner.id})" title="Xóa banner này" style="background-color: #ff4d4d; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer;"><i class="fa-solid fa-trash"></i></button>
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                })
+                .catch(err => {
+                    console.error("Lỗi tải danh sách:", err);
+                    document.getElementById("banner-table-body").innerHTML = `<tr><td colspan="5" style="text-align:center; padding:20px; color:#ff6b6b;">Lỗi kết nối API Server!</td></tr>`;
+                });
+        }
+
+        // 2. Hàm xử lý thêm mới Banner kèm tải file ảnh lên Server
+        function addBanner(event) {
+            event.preventDefault();
+
+            const formData = new FormData();
+            const title = document.getElementById("bannerTitle").value;
+            const linkToBook = document.getElementById("bannerLink").value;
+            const imageFile = document.getElementById("bannerImgFile").files[0];
+
+            formData.append("title", title);
+            formData.append("linkToBook", linkToBook);
+            formData.append("imageFile", imageFile);
+
+            fetch(API_URL, {
+                method: "POST",
+                body: formData
+            })
+                .then(res => {
+                    if (res.ok) {
+                        alert("🎉 Thêm banner và tải ảnh lên thành công!");
+                        document.getElementById("banner-form").reset();
+                        loadBanners();
+                    } else {
+                        alert("❌ Thêm banner thất bại. Vui lòng kiểm tra lại file ảnh!");
+                    }
+                })
+                .catch(err => {
+                    console.error("Lỗi kết nối:", err);
+                    alert("❌ Lỗi kết nối đến Server.");
+                });
+        }
+
+        // 3. Hàm xử lý xóa Banner
+        function deleteBanner(id) {
+            if (confirm("Bạn có chắc chắn muốn gỡ bỏ banner quảng cáo này không?")) {
+                fetch(`${API_URL}/${id}`, { method: "DELETE" })
+                    .then(res => {
+                        if (res.ok) {
+                            alert("Đã xóa banner khỏi hệ thống!");
+                            loadBanners();
+                        }
+                    });
+            }
+        }
+
+        // Kích hoạt chạy tải dữ liệu khi mở trang
+        document.addEventListener("DOMContentLoaded", loadBanners);
+    </script>
+</body>
+
+</html>

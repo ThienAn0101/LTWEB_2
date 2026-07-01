@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Thêm Chương Mới - 3T Story</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* CSS Form nhập liệu sang xịn mịn */
+        .form-card {
+            background-color: #2D1F18;
+            border: 1px solid #3D2B22;
+            border-radius: 8px;
+            padding: 30px;
+            max-width: 700px;
+            margin: 0 auto;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #F8F3E9;
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .form-control {
+            width: 100%;
+            background-color: #3D2B22;
+            color: #F8F3E9;
+            border: 1px solid #C08B5C;
+            padding: 10px 15px;
+            border-radius: 4px;
+            font-size: 14px;
+            outline: none;
+            box-sizing: border-box;
+        }
+
+        .form-control:focus {
+            border-color: #F2E7D4;
+            box-shadow: 0 0 5px rgba(192, 139, 92, 0.5);
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 250px;
+            font-family: inherit;
+            line-height: 1.6;
+        }
+
+        .btn-container {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .btn-submit {
+            background-color: #C08B5C;
+            color: #2D1F18;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .btn-submit:hover {
+            background-color: #FDFBF7;
+            transform: translateY(-2px);
+        }
+
+        .btn-cancel {
+            background-color: transparent;
+            color: #BEB29A;
+            border: 1px solid #555;
+            padding: 10px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .btn-cancel:hover {
+            border-color: #BEB29A;
+            color: #F8F3E9;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="logo-container">
+                <span class="logo-text">3T <span class="highlight">Story</span></span>
+            </div>
+            <nav class="menu">
+                <a href="dashboard.html" class="menu-item"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+                <a href="manage-users.html" class="menu-item"><i class="fa-solid fa-users"></i> Đọc giả</a>
+                <a href="admin.html" class="menu-item"><i class="fa-solid fa-list"></i> Danh mục truyện</a>
+                <a href="manage-books.html" class="menu-item"><i class="fa-solid fa-book"></i> Quản lý Truyện</a>
+                <a href="manage-chapters.html" class="menu-item active"><i class="fa-solid fa-list-ol"></i> Quản lý
+                    Chương</a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="top-header">
+                <div class="system-title">3T STORY <span class="sub-title">MANAGEMENT SYSTEM</span></div>
+                <div class="admin-profile">
+                    <div class="admin-info">
+                        <span class="role">👑 ADMIN</span>
+                        <span class="name">TIÊN LÊ</span>
+                    </div>
+                    <div class="avatar">TL</div>
+                </div>
+            </header>
+
+            <section class="content-body">
+                <div class="form-card">
+                    <h2 style="color: #C08B5C; margin-top: 0; margin-bottom: 25px;">
+                        <i class="fa-solid fa-plus-circle"></i> Thêm Chương Mới: <span id="book-title-display"
+                            style="color: #F8F3E9;">...</span>
+                    </h2>
+
+                    <form id="add-chapter-form" onsubmit="submitNewChapter(event)">
+
+                        <div class="form-group">
+                            <label for="chapterNumber">Số thứ tự chương (Ví dụ: 1, 2, 3...):</label>
+                            <input type="number" id="chapterNumber" class="form-control" placeholder="Nhập số chương"
+                                required min="1">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="chapterTitle">Tiêu đề chương:</label>
+                            <input type="text" id="chapterTitle" class="form-control"
+                                placeholder="Ví dụ: Lần đầu gặp gỡ, Sóng gió bắt đầu..." required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="chapterContent">Nội dung chương truyện:</label>
+                            <textarea id="chapterContent" class="form-control"
+                                placeholder="Viết hoặc dán nội dung chữ của chương vào đây..." required></textarea>
+                        </div>
+
+                        <div class="btn-container">
+                            <button type="button" class="btn-cancel" onclick="goBackToChapters()">Hủy bỏ</button>
+                            <button type="submit" class="btn-submit"><i class="fa-solid fa-floppy-disk"></i> Lưu chương
+                                truyện</button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // 1. Lấy mã bộ truyện từ thanh URL (Ví dụ: add-chapter.html?bookId=5)
+        const urlParams = new URLSearchParams(window.location.search);
+        const bookId = urlParams.get('bookId');
+
+        // Khi trang web vừa mở, kiểm tra xem có bookId không và lấy thông tin truyện để hiển thị tiêu đề
+        document.addEventListener("DOMContentLoaded", () => {
+            if (!bookId) {
+                alert("Không tìm thấy ID bộ truyện! Hệ thống sẽ đưa bạn về trang danh sách.");
+                window.location.href = "manage-chapters.html";
+                return;
+            }
+
+            // Gọi API lấy thông tin chi tiết bộ truyện để hiển thị tên lên màn hình
+            fetch(`http://localhost:8080/api/books/${bookId}`)
+                .then(res => {
+                    if (!res.ok) throw new Error();
+                    return res.json();
+                })
+                .then(book => {
+                    document.getElementById('book-title-display').innerText = book.title;
+                })
+                .catch(() => {
+                    document.getElementById('book-title-display').innerText = `Bộ truyện #${bookId}`;
+                });
+        });
+
+        // 2. Hàm xử lý gửi dữ liệu lên Backend khi Admin bấm nút Lưu
+        function submitNewChapter(event) {
+                event.preventDefault();
+
+                const chapterData = {
+                    chapterNumber: parseInt(document.getElementById('chapterNumber').value),
+                    title: document.getElementById('chapterTitle').value,
+                    content: document.getElementById('chapterContent').value
+                };
+
+                // 🌟 Đảm bảo đường dẫn fetch gọi đúng cấu trúc API mới của Backend:
+                fetch(`http://localhost:8080/api/books/${bookId}/chapters`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(chapterData)
+                })
+                    .then(res => {
+                        if (res.ok) {
+                            alert("🎉 Thêm chương mới thành công!");
+                            goBackToChapters();
+                        } else {
+                            alert("❌ Thêm chương thất bại! Vui lòng kiểm tra lại.");
+                        }
+                    })
+                    .catch(err => {
+                        console.error("Lỗi:", err);
+                        alert("❌ Lỗi kết nối đến Backend.");
+                    });
+            }
+
+        // Hàm hỗ trợ quay lại danh sách chương và giữ lại lựa chọn bộ truyện cũ
+        function goBackToChapters() {
+            window.location.href = `manage-chapters.html?bookId=${bookId}`;
+        }
+    </script>
+</body>
+
+</html>

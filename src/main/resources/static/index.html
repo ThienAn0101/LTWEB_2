@@ -16,11 +16,8 @@
     <style>
         body {
             background-color: #F2E7D4;
-            /* [Giấy kem nhạt] Toàn không gian sáng dịu, ấm nhẹ */
             color: #8A6B4A;
-            /* [Gỗ chiều sâu] Màu chữ phụ/tiêu đề nhẹ nhàng */
             margin: 0;
-            /* 🌟 Đổi sang font chữ Merriweather/Playfair Display đã nhúng ở trên */
             font-family: 'Merriweather', 'Georgia', serif;
         }
 
@@ -30,12 +27,9 @@
             padding: 40px 20px;
         }
 
-        /* Header nhạt hơn, hòa quyện với không gian */
         .client-header {
             background-color: #C7AD84;
-            /* [Gỗ nhạt tĩnh lặng] Hạ tông tối */
             border-bottom: 2px solid #C08B5C;
-            /* [Ánh đèn đọc sách] */
             padding: 15px 40px;
             display: flex;
             justify-content: space-between;
@@ -47,28 +41,23 @@
             font-size: 24px;
             font-weight: 700;
             color: #FDFBF7;
-            /* Trắng ngà sách cổ */
             text-decoration: none;
             letter-spacing: 1px;
             cursor: pointer;
             font-family: 'Playfair Display', serif;
-            /* Tạo nét phá cách cho Logo */
         }
 
         .logo-text .highlight {
             color: #8A6B4A;
             background-color: #F2E7D4;
-            /* Kem nhạt */
             padding: 2px 8px;
             border-radius: 4px;
             margin-left: 6px;
         }
 
-        /* Thanh tìm kiếm thanh lịch */
         .search-bar {
             display: flex;
             background-color: #D6BE98;
-            /* Màu nền trung gian mềm mại */
             border: 1px solid #C08B5C;
             border-radius: 6px;
             padding: 6px 14px;
@@ -80,7 +69,6 @@
             background: none;
             border: none;
             color: #FDFBF7;
-            /* Chữ trắng ngà khi gõ */
             width: 100%;
             font-size: 14px;
             outline: none;
@@ -114,7 +102,6 @@
             border-color: #FDFBF7;
         }
 
-        /* Tiêu đề góc đọc sách tĩnh lặng */
         .section-title {
             color: #8A6B4A;
             font-size: 22px;
@@ -131,10 +118,8 @@
             gap: 30px;
         }
 
-        /* Thẻ truyện màu gỗ nhạt, đồng điệu tuyệt đối */
         .book-card {
             background-color: #C7AD84;
-            /* [Gỗ nhạt tĩnh lặng] Thay cho màu đậm cũ */
             border: 1px solid #D6BE98;
             border-radius: 8px;
             overflow: hidden;
@@ -149,7 +134,6 @@
             transform: translateY(-4px);
             border-color: #C08B5C;
             background-color: #BEA277;
-            /* Đậm nhẹ tạo chiều sâu khi rê chuột */
             box-shadow: 0 6px 15px rgba(138, 107, 74, 0.15);
         }
 
@@ -170,7 +154,6 @@
         .book-card-title {
             font-size: 15px;
             color: #FDFBF7;
-            /* Chữ trắng ngà của giấy sách */
             font-weight: 700;
             margin: 0 0 6px 0;
             line-height: 1.4;
@@ -179,13 +162,11 @@
             -webkit-box-orient: vertical;
             overflow: hidden;
             font-family: 'Playfair Display', serif;
-            /* Tên truyện dùng font nét đậm thanh lịch */
         }
 
         .book-card-author {
             font-size: 12px;
             color: #F2E7D4;
-            /* Kem nhạt dịu mắt */
             margin: 0 0 12px 0;
         }
 
@@ -193,12 +174,98 @@
             font-size: 11px;
             color: #FDFBF7;
             background-color: #C08B5C;
-            /* Ánh đèn đọc sách rọi nhẹ vào nhãn */
             padding: 4px 10px;
             border-radius: 4px;
             align-self: flex-start;
             margin-top: auto;
             font-weight: 600;
+        }
+
+        /* --- CSS CHO BANNER SLIDER --- */
+        .banner-slider-container {
+            max-width: 1200px;
+            margin: 0 auto 35px auto;
+            position: relative;
+            overflow: hidden;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            background-color: #2D1F18;
+        }
+
+        .slider-wrapper {
+            display: flex;
+            width: 100%;
+            transition: transform 0.5s ease-in-out;
+        }
+
+        .slider-item {
+            min-width: 100%;
+            box-sizing: border-box;
+            display: block;
+        }
+
+        .slider-item img {
+            width: 100%;
+            height: 380px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .slider-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(61, 43, 34, 0.7);
+            color: #F8F3E9;
+            border: 1px solid #C08B5C;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: all 0.2s;
+            z-index: 10;
+        }
+
+        .slider-btn:hover {
+            background-color: #C08B5C;
+            color: #2D1F18;
+        }
+
+        .prev-btn {
+            left: 15px;
+        }
+
+        .next-btn {
+            right: 15px;
+        }
+
+        .slider-dots {
+            position: absolute;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+            z-index: 10;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: rgba(248, 243, 233, 0.5);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .dot.active {
+            background-color: #C08B5C;
+            width: 25px;
+            border-radius: 5px;
         }
     </style>
 </head>
@@ -219,6 +286,18 @@
     </header>
 
     <main class="client-body">
+        <div class="banner-slider-container">
+            <div class="slider-wrapper" id="sliderWrapper">
+            </div>
+
+            <button class="slider-btn prev-btn" onclick="moveSlider(-1)"><i
+                    class="fa-solid fa-chevron-left"></i></button>
+            <button class="slider-btn next-btn" onclick="moveSlider(1)"><i
+                    class="fa-solid fa-chevron-right"></i></button>
+
+            <div class="slider-dots" id="sliderDots"></div>
+        </div>
+
         <h2 class="section-title">☕ GÓC THƯ GIÃN</h2>
         <div class="books-grid" id="books-container">
             <p style="color: #8A6B4A; grid-column: 1/-1; text-align: center;">Đang sửa soạn giá sách...</p>
@@ -227,7 +306,90 @@
 
     <script>
         const BOOK_API = 'http://localhost:8080/api/books';
+        const BANNER_API = 'http://localhost:8080/api/banners';
 
+        let currentSlideIndex = 0;
+        let totalSlides = 0;
+
+        // 🌟 1. HÀM TẢI BANNER TỪ SPRING BOOT VÀ ĐỔ RA SLIDER
+        function loadBannersToHome() {
+            fetch(BANNER_API)
+                .then(res => res.json())
+                .then(banners => {
+                    const wrapper = document.getElementById("sliderWrapper");
+                    const dotsContainer = document.getElementById("sliderDots");
+
+                    wrapper.innerHTML = "";
+                    dotsContainer.innerHTML = "";
+
+                    if (!banners || banners.length === 0) {
+                        // Nếu không có dữ liệu, ẩn toàn bộ khối slider đi
+                        document.querySelector(".banner-slider-container").style.display = "none";
+                        return;
+                    }
+
+                    totalSlides = banners.length;
+
+                    banners.forEach((banner, index) => {
+                        let finalImgUrl = banner.imageUrl;
+                        if (finalImgUrl && finalImgUrl.startsWith("/")) {
+                            finalImgUrl = "http://localhost:8080" + finalImgUrl;
+                        }
+
+                        // Tạo thẻ liên kết ảnh
+                        const slideLink = document.createElement("a");
+                        slideLink.href = banner.linkToBook || "#";
+                        slideLink.className = "slider-item";
+                        slideLink.innerHTML = `<img src="${finalImgUrl}" alt="${banner.title}" onerror="this.src='https://via.placeholder.com/1200x380?text=Loi+Anh+Banner'">`;
+                        wrapper.appendChild(slideLink);
+
+                        // Tạo dấu chấm
+                        const dot = document.createElement("div");
+                        dot.className = `dot ${index === 0 ? 'active' : ''}`;
+                        dot.setAttribute("onclick", `goToSlide(${index})`);
+                        dotsContainer.appendChild(dot);
+                    });
+
+                    // Tự động lướt banner sau mỗi 5 giây
+                    setInterval(() => {
+                        moveSlider(1);
+                    }, 5000);
+                })
+                .catch(err => {
+                    console.error("Lỗi khi tải banner:", err);
+                    document.querySelector(".banner-slider-container").style.display = "none";
+                });
+        }
+
+        // Các hàm xử lý hiệu ứng lướt qua lại của Slider
+        function moveSlider(direction) {
+            if (totalSlides === 0) return;
+            currentSlideIndex += direction;
+            if (currentSlideIndex >= totalSlides) currentSlideIndex = 0;
+            if (currentSlideIndex < 0) currentSlideIndex = totalSlides - 1;
+            updateSliderPosition();
+        }
+
+        function goToSlide(index) {
+            currentSlideIndex = index;
+            updateSliderPosition();
+        }
+
+        function updateSliderPosition() {
+            const wrapper = document.getElementById("sliderWrapper");
+            wrapper.style.transform = `translateX(-${currentSlideIndex * 100}%)`;
+
+            const dots = document.querySelectorAll(".slider-dots .dot");
+            dots.forEach((dot, idx) => {
+                if (idx === currentSlideIndex) {
+                    dot.classList.add("active");
+                } else {
+                    dot.classList.remove("active");
+                }
+            });
+        }
+
+        // 🌟 2. HÀM TẢI TRUYỆN CŨ CỦA BẠN (GIỮ NGUYÊN)
         function loadAllBooksToHome() {
             fetch(BOOK_API)
                 .then(response => {
@@ -263,7 +425,12 @@
                     document.getElementById('books-container').innerHTML = `<p style="color: #8A6B4A; grid-column: 1/-1; text-align: center;">❌ Lỗi kết nối đến thư viện Spring Boot.</p>`;
                 });
         }
-        window.addEventListener('DOMContentLoaded', loadAllBooksToHome);
+
+        // 🌟 KÍCH HOẠT CHẠY ĐỒNG THỜI CẢ BANNER VÀ TRUYỆN KHI VÀO TRANG CHỦ
+        document.addEventListener('DOMContentLoaded', () => {
+            loadBannersToHome();
+            loadAllBooksToHome();
+        });
     </script>
 </body>
 
