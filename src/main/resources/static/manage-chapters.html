@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Quản Lý Chương Truyện - 3T Story</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* CSS tạo ô chọn bộ truyện đẹp mắt */
+        .select-book-container {
+            margin-bottom: 20px;
+            background-color: #2D1F18;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #3D2B22;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .select-book-container label {
+            color: #F8F3E9;
+            font-weight: bold;
+            font-size: 15px;
+        }
+
+        .book-dropdown {
+            background-color: #3D2B22;
+            color: #F8F3E9;
+            border: 1px solid #C08B5C;
+            padding: 8px 15px;
+            border-radius: 4px;
+            font-size: 14px;
+            min-width: 250px;
+            outline: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="logo-container">
+                <span class="logo-text">3T <span class="highlight">Story</span></span>
+            </div>
+            <nav class="menu">
+                <a href="dashboard.html" class="menu-item"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+                <a href="manage-users.html" class="menu-item"><i class="fa-solid fa-users"></i> Đọc giả</a>
+                <a href="admin.html" class="menu-item"><i class="fa-solid fa-list"></i> Danh mục truyện</a>
+                <a href="manage-books.html" class="menu-item"><i class="fa-solid fa-book"></i> Quản lý Truyện</a>
+                <a href="manage-chapters.html" class="menu-item active"><i class="fa-solid fa-list-ol"></i> Quản lý
+                    Chương</a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="top-header">
+                <div class="system-title">3T STORY <span class="sub-title">MANAGEMENT SYSTEM</span></div>
+                <div class="admin-profile">
+                    <div class="admin-info">
+                        <span class="role">👑 ADMIN</span>
+                        <span class="name">TIÊN LÊ</span>
+                    </div>
+                    <div class="avatar">TL</div>
+                </div>
+            </header>
+
+            <section class="content-body">
+
+                <div class="select-book-container">
+                    <label for="bookSelect"><i class="fa-solid fa-book-open"></i> Chọn bộ truyện cần quản lý:</label>
+                    <select id="bookSelect" class="book-dropdown" onchange="onBookChange(this.value)">
+                        <option value="">-- Chọn bộ truyện --</option>
+                    </select>
+                </div>
+
+                <div class="table-card">
+                    <div class="table-header">
+                        <h2><i class="fa-solid fa-file-lines"></i> Danh Sách Chương: <span id="book-title-heading"
+                                style="color: #C08B5C;">Chưa chọn truyện</span></h2>
+                        <button class="add-btn" id="add-chapter-btn" disabled
+                            style="opacity: 0.5; cursor: not-allowed;">
+                            <i class="fa-solid fa-plus"></i> Thêm chương mới
+                        </button>
+                    </div>
+
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 80px;">ID</th>
+                                <th style="width: 135px; text-align: center;">Số Chương</th>
+                                <th>Tiêu đề chương</th>
+                                <th style="width: 400px;">Nội dung bản xem trước (Preview)</th>
+                                <th style="text-align: center; width: 150px;">Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody id="chapter-table-body">
+                            <tr>
+                                <td colspan="5"
+                                    style="text-align:center; padding: 30px; color:#BEB29A; font-style: italic;">Vui
+                                    lòng lựa chọn một bộ truyện ở ô phía trên để xem danh sách chương.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // 1. Lấy tham số mã truyện từ URL nếu có (để hỗ trợ chuyển hướng từ trang quản lý truyện sang)
+        const urlParams = new URLSearchParams(window.location.search);
+        let currentBookId = urlParams.get('bookId');
+
+        // Khi vừa tải trang: Load danh sách tất cả các bộ truyện đổ vào ô Dropdown chọn nhanh
+        document.addEventListener("DOMContentLoaded", () => {
+            fetch('http://localhost:8080/api/books')
+                .then(res => res.json())
+                .then(books => {
+                    const select = document.getElementById('bookSelect');
+                    books.forEach(book => {
+                        const option = document.createElement('option');
+                        option.value = book.id;
+                        option.textContent = book.title;
+                        // Nếu có bookId trên URL, tự động chọn sẵn bộ truyện đó trong danh sách thả xuống
+                        if (currentBookId && book.id == currentBookId) {
+                            option.selected = true;
+                        }
+                        select.appendChild(option);
+                    });
+
+                    // Nếu có sẵn bookId trên URL thì tải luôn danh sách chương của bộ truyện đó
+                    if (currentBookId) {
+                        loadChapters(currentBookId);
+                    }
+                })
+                .catch(err => console.error("Không thể tải danh sách truyện:", err));
+        });
+
+        // Hàm xử lý sự kiện khi Admin tự tay đổi chọn bộ truyện khác trên ô thả xuống
+        function onBookChange(bookId) {
+            currentBookId = bookId;
+            if (!bookId) {
+                // Nếu chọn dòng trống mặc định
+                document.getElementById('book-title-heading').innerText = "Chưa chọn truyện";
+                document.getElementById('add-chapter-btn').disabled = true;
+                document.getElementById('add-chapter-btn').style.opacity = "0.5";
+                document.getElementById('add-chapter-btn').style.cursor = "not-allowed";
+                document.getElementById('chapter-table-body').innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 30px; color:#BEB29A; font-style: italic;">Vui lòng lựa chọn một bộ truyện ở ô phía trên để xem danh sách chương.</td></tr>`;
+                return;
+            }
+            // Cập nhật lại danh sách chương tương ứng
+            loadChapters(bookId);
+        }
+
+        // 2. Hàm gọi API lấy danh sách chương truyện đổ lên bảng dữ liệu
+        function loadChapters(bookId) {
+            const selectElement = document.getElementById('bookSelect');
+            const selectedText = selectElement.options[selectElement.selectedIndex]?.text || `Bộ truyện #${bookId}`;
+            document.getElementById('book-title-heading').innerText = selectedText;
+
+            // Kích hoạt nút thêm chương mới hoạt động
+            const addBtn = document.getElementById('add-chapter-btn');
+            addBtn.disabled = false;
+            addBtn.style.opacity = "1";
+            addBtn.style.cursor = "pointer";
+            addBtn.onclick = function () {
+                window.location.href = `add-chapter.html?bookId=${bookId}`;
+            };
+
+            fetch(`http://localhost:8080/api/books/${bookId}/chapters`)
+                .then(res => res.json())
+                .then(chapters => {
+                    const tbody = document.getElementById('chapter-table-body');
+                    tbody.innerHTML = '';
+
+                    if (!chapters || chapters.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 30px; color:#BEB29A; font-style: italic;">Bộ truyện này hiện tại chưa có chương nào. Hãy bấm nút thêm chương mới!</td></tr>`;
+                        return;
+                    }
+
+                    // Sắp xếp tăng dần theo số thứ tự chương
+                    chapters.sort((a, b) => a.chapterNumber - b.chapterNumber);
+
+                    chapters.forEach(chap => {
+                        const tr = document.createElement('tr');
+                        const shortContent = chap.content
+                            ? (chap.content.length > 80 ? chap.content.substring(0, 80) + '...' : chap.content)
+                            : '<span style="color:gray; font-style:italic;">Chưa có nội dung chữ</span>';
+
+                        tr.innerHTML = `
+                            <td><strong>#${chap.id}</strong></td>
+                            <td style="text-align: center;"><span style="background-color:#3D2B22; padding:3px 8px; border-radius:4px; color:#F8F3E9;">Chương ${chap.chapterNumber}</span></td>
+                            <td><strong style="color:#F8F3E9;">${chap.title || 'Không có tiêu đề'}</strong></td>
+                            <td style="color:#BEB29A; font-size:13px;">${shortContent}</td>
+                            <td style="text-align: center;">
+                                <button class="action-btn edit-btn" onclick="location.href='edit-chapter.html?id=${chap.id}&bookId=${bookId}'" title="Sửa chương"><i class="fa-solid fa-pen-to-square"></i></button>
+                                <button class="action-btn delete-btn" onclick="deleteChapter(${chap.id}, ${chap.chapterNumber})" title="Xóa chương"><i class="fa-solid fa-trash"></i></button>
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                })
+                .catch(err => {
+                    console.error(err);
+                    document.getElementById('chapter-table-body').innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 30px; color:#ff6b6b;">Không thể tải dữ liệu chương từ Backend.</td></tr>`;
+                });
+        }
+
+        // 3. Hàm xử lý nghiệp vụ xóa chương truyện
+        function deleteChapter(id, chapterNumber) {
+            if (confirm(`Bạn có chắc chắn muốn xóa "Chương ${chapterNumber}" này không?`)) {
+                fetch(`http://localhost:8080/api/books/chapters/${id}`, { method: 'DELETE' })
+                    .then(res => {
+                        if (res.ok) {
+                            alert(`Xóa chương ${chapterNumber} thành công!`);
+                            loadChapters(currentBookId);
+                        }
+                    })
+                    .catch(err => console.error("Lỗi:", err));
+            }
+        }
+    </script>
+</body>
+
+</html>

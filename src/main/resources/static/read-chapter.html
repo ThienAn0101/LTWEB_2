@@ -12,17 +12,17 @@
             background-color: #F2E7D4;
             /* [Giấy kem nhạt] Tối ưu cho mắt khi đọc lâu */
             color: #4A3B2C;
-            /* Màu chữ nâu trầm sâu lắng, không dùng màu đen tuyền gây mỏi mắt */
+            /* Màu chữ nâu trầm sâu lắng */
             margin: 0;
-            font-family: "Georgia", serif;
-            /* Phông chữ có chân kinh điển của sách giấy */
+            /* ĐÃ SỬA: Đổi sang font hệ thống để hiển thị tiếng Việt tròn trịa, không bị rách chữ */
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
             line-height: 2.0;
             /* Khoảng cách dòng rộng rãi, dễ theo dõi */
         }
 
         .reading-container {
             max-width: 800px;
-            /* Bóp hẹp chiều rộng vừa tầm mắt liếc, không bị mỏi cổ */
+            /* Bóp hẹp chiều rộng vừa tầm mắt liếc */
             margin: 0 auto;
             padding: 40px 20px 100px 20px;
         }
@@ -72,17 +72,17 @@
             line-height: 1.4;
         }
 
-        /* Khung chứa nội dung chữ truyện chính thức */
+        /* Khung chứa nội dung chữ truyện */
         .chapter-content {
             font-size: 20px;
-            /* Cỡ chữ vừa vặn, ấm áp như lật sách */
             color: #3D3124;
-            /* Đậm hơn tiêu đề một chút để tập trung thị giác */
-            text-align: justify;
-            /* Căn đều hai bên giống trang sách in */
+            /* ĐÃ SỬA: Căn lề trái (left) để chữ tiếng Việt không bị trình duyệt kéo dãn làm vỡ dấu */
+            text-align: left;
             white-space: pre-line;
             /* Giữ nguyên các đoạn xuống dòng từ Database */
             margin-bottom: 50px;
+            letter-spacing: normal;
+            /* Giữ khoảng cách chữ tự nhiên */
         }
 
         /* Thanh điều hướng Chương Trước / Chương Sau ở đáy trang */
@@ -168,10 +168,8 @@
         // Cập nhật nút quay lại trang chi tiết đúng ID của truyện
         document.getElementById('back-to-detail').href = `detail-book.html?id=${bookId}`;
 
-        // 2. Hàm gọi API từ Spring Boot lấy nội dung chương
+        // 2. Hàm gọi API lấy nội dung chương từ Backend
         function loadChapterData() {
-            // Giả định API Backend của bạn có cấu trúc: /api/books/{bookId}/chapters/{chapterNumber}
-            // (Nếu Backend của bạn đặt tên khác, hãy điều chỉnh lại URL fetch này nhé!)
             const API_URL = `http://localhost:8080/api/books/${bookId}/chapters/${currentChapter}`;
 
             fetch(API_URL)
@@ -185,8 +183,7 @@
                     document.getElementById('text-chapter-title').textContent = `Chương ${currentChapter}: ${data.title || ''}`;
                     document.getElementById('chapter-text-content').textContent = data.content;
 
-                    // Xử lý logic ẩn/hiện hoặc bật/tắt nút Điều hướng
-                    // Nút quay lại chương trước
+                    // Xử lý nút quay lại chương trước
                     const prevBtn = document.getElementById('btn-prev');
                     if (currentChapter <= 1) {
                         prevBtn.classList.add('disabled');
@@ -195,20 +192,21 @@
                         prevBtn.href = `read-chapter.html?bookId=${bookId}&chapter=${currentChapter - 1}`;
                     }
 
-                    // Nút sang chương sau (Giả sử backend trả về cờ isLastChapter hoặc tự tính dựa trên tổng số chương)
+                    // Đmax SỬA LOGIC: Kiểm tra chính xác thuộc tính "data.last" trả về từ Backend DTO
                     const nextBtn = document.getElementById('btn-next');
-                    if (data.isLastChapter) {
+                    if (data.last === true) {
                         nextBtn.classList.add('disabled');
+                        nextBtn.removeAttribute('href');
                     } else {
                         nextBtn.classList.remove('disabled');
                         nextBtn.href = `read-chapter.html?bookId=${bookId}&chapter=${currentChapter + 1}`;
                     }
 
-                    // Cuộn màn hình mượt mà lên đầu trang mỗi khi chuyển chương
+                    // Cuộn màn hình lên đầu trang mượt mà
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                 })
                 .catch(error => {
-                    // Xử lý báo lỗi nhẹ nhàng khi người dùng bấm quá số chương đang có
+                    // Xử lý báo lỗi nhẹ nhàng khi lỗi hoặc hết chương
                     document.getElementById('text-chapter-title').textContent = "Hết trọn bộ truyện";
                     document.getElementById('chapter-text-content').innerHTML = `<p style="text-align:center; color:#8A6B4A;">Bạn đã đọc hết các chương hiện có của bộ truyện này rồi. Hãy quay lại tủ sách để chọn bộ truyện khác nhé! ☕</p>`;
                     document.getElementById('btn-next').classList.add('disabled');

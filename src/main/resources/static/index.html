@@ -7,6 +7,12 @@
     <title>3T Story - Góc Đọc Sách Thư Giãn</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400&display=swap"
+        rel="stylesheet">
+
     <style>
         body {
             background-color: #F2E7D4;
@@ -14,7 +20,8 @@
             color: #8A6B4A;
             /* [Gỗ chiều sâu] Màu chữ phụ/tiêu đề nhẹ nhàng */
             margin: 0;
-            font-family: "Georgia", serif;
+            /* 🌟 Đổi sang font chữ Merriweather/Playfair Display đã nhúng ở trên */
+            font-family: 'Merriweather', 'Georgia', serif;
         }
 
         .client-body {
@@ -44,6 +51,8 @@
             text-decoration: none;
             letter-spacing: 1px;
             cursor: pointer;
+            font-family: 'Playfair Display', serif;
+            /* Tạo nét phá cách cho Logo */
         }
 
         .logo-text .highlight {
@@ -76,6 +85,7 @@
             font-size: 14px;
             outline: none;
             padding-left: 8px;
+            font-family: 'Merriweather', serif;
         }
 
         .search-bar input::placeholder {
@@ -112,6 +122,7 @@
             padding-left: 10px;
             margin-bottom: 30px;
             font-weight: 600;
+            font-family: 'Playfair Display', serif;
         }
 
         .books-grid {
@@ -128,11 +139,10 @@
             border-radius: 8px;
             overflow: hidden;
             transition: all 0.3s ease;
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
             text-decoration: none;
             box-shadow: 0 4px 10px rgba(138, 107, 74, 0.08);
+            display: flex;
+            flex-direction: column;
         }
 
         .book-card:hover {
@@ -161,17 +171,19 @@
             font-size: 15px;
             color: #FDFBF7;
             /* Chữ trắng ngà của giấy sách */
-            font-weight: 600;
+            font-weight: 700;
             margin: 0 0 6px 0;
             line-height: 1.4;
             display: -webkit-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
+            font-family: 'Playfair Display', serif;
+            /* Tên truyện dùng font nét đậm thanh lịch */
         }
 
         .book-card-author {
-            font-size: 13px;
+            font-size: 12px;
             color: #F2E7D4;
             /* Kem nhạt dịu mắt */
             margin: 0 0 12px 0;
@@ -182,7 +194,7 @@
             color: #FDFBF7;
             background-color: #C08B5C;
             /* Ánh đèn đọc sách rọi nhẹ vào nhãn */
-            padding: 3px 8px;
+            padding: 4px 10px;
             border-radius: 4px;
             align-self: flex-start;
             margin-top: auto;
@@ -215,6 +227,7 @@
 
     <script>
         const BOOK_API = 'http://localhost:8080/api/books';
+
         function loadAllBooksToHome() {
             fetch(BOOK_API)
                 .then(response => {

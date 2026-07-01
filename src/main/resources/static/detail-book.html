@@ -14,7 +14,8 @@
             color: #8A6B4A;
             /* Màu chữ phụ sâu lắng */
             margin: 0;
-            font-family: "Georgia", serif;
+            /* ĐÃ SỬA: Đổi từ font Georgia sang font hệ thống hỗ trợ tiếng Việt mượt mà 100% */
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
         }
 
         .client-body {
@@ -38,6 +39,7 @@
             font-weight: 700;
             color: #FDFBF7;
             text-decoration: none;
+            cursor: pointer;
         }
 
         .logo-text .highlight {
@@ -180,8 +182,11 @@
             line-height: 1.8;
             color: #FDFBF7;
             /* Chữ trắng ngà của sách giấy cực dễ nhìn */
+            /* ĐÃ SỬA: Đổi sang text-align: left để bảo vệ dấu chữ tiếng Việt không bị kéo rách */
+            text-align: left;
             white-space: pre-line;
             margin: 0;
+            letter-spacing: normal;
         }
     </style>
 </head>

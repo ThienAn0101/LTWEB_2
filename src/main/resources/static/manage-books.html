@@ -6,6 +6,52 @@
     <title>Quản Lý Truyện - 3T Story</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* CSS Thanh phân trang nằm ở cuối bảng dữ liệu */
+        .pagination-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-top: 25px;
+            padding: 10px;
+        }
+    
+        .pagination-btn {
+            background-color: #3D2B22;
+            color: #F8F3E9;
+            border: 1px solid #C08B5C;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+    
+        .pagination-btn:hover:not(:disabled) {
+            background-color: #C08B5C;
+            color: #2D1F18;
+        }
+    
+        .pagination-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            border-color: #555;
+        }
+    
+        .page-info {
+            color: #BEB29A;
+            font-size: 14px;
+            font-weight: bold;
+            background-color: #2D1F18;
+            padding: 6px 12px;
+            border-radius: 4px;
+            border: 1px solid #3D2B22;
+        }
+    </style>
 </head>
 
 <body>
@@ -20,6 +66,7 @@
                 <a href="manage-users.html" class="menu-item"><i class="fa-solid fa-users"></i> Đọc giả</a>
                 <a href="admin.html" class="menu-item"><i class="fa-solid fa-list"></i> Danh mục truyện</a>
                 <a href="manage-books.html" class="menu-item active"><i class="fa-solid fa-book"></i> Quản lý Truyện</a>
+                <a href="manage-chapters.html" class="menu-item"><i class="fa-solid fa-list-ol"></i> Quản lý Chương</a>
             </nav>
         </aside>
 
