@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng Ký Tài Khoản - 3T Story</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Merriweather:wght@300;400;700&display=swap"
+        rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #F2E7D4;
+            color: #8A6B4A;
+            font-family: 'Merriweather', 'Georgia', serif;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .register-container {
+            background-color: #C7AD84;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(138, 107, 74, 0.2);
+            width: 100%;
+            max-width: 420px;
+            border: 1px solid #C08B5C;
+            box-sizing: border-box;
+        }
+
+        .logo-title {
+            text-align: center;
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            font-weight: 700;
+            color: #FDFBF7;
+            margin-bottom: 5px;
+            cursor: pointer;
+        }
+
+        .logo-title .highlight {
+            color: #8A6B4A;
+            background-color: #F2E7D4;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-left: 4px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #F2E7D4;
+            font-size: 13px;
+            margin-bottom: 30px;
+            font-style: italic;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            color: #FDFBF7;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-wrapper i {
+            position: absolute;
+            left: 14px;
+            color: #8A6B4A;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 14px 12px 40px;
+            background-color: #FDFBF7;
+            border: 1px solid #C08B5C;
+            border-radius: 6px;
+            color: #2D1F18;
+            font-size: 14px;
+            outline: none;
+            font-family: 'Merriweather', serif;
+            box-sizing: border-box;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus {
+            border-color: #2D1F18;
+            box-shadow: 0 0 5px rgba(45, 31, 24, 0.2);
+        }
+
+        .btn-register {
+            width: 100%;
+            padding: 12px;
+            background-color: #2D1F18;
+            color: #FDFBF7;
+            border: none;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: 'Merriweather', serif;
+            transition: background 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn-register:hover {
+            background-color: #4A3525;
+        }
+
+        .switch-page {
+            text-align: center;
+            margin-top: 25px;
+            font-size: 13px;
+            color: #FDFBF7;
+        }
+
+        .switch-page a {
+            color: #2D1F18;
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        .switch-page a:hover {
+            text-decoration: underline;
+        }
+
+        .error-msg {
+            color: #b54949;
+            background-color: #fce8e8;
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 13px;
+            margin-bottom: 20px;
+            display: none;
+            border: 1px solid #f5c2c2;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="register-container">
+        <div class="logo-title" onclick="location.href='index.html'">
+            3T <span class="highlight">Story</span>
+        </div>
+        <div class="subtitle">Mở cánh cửa bước vào không gian thư thái</div>
+
+        <div id="errorBox" class="error-msg"></div>
+
+        <form id="registerForm" onsubmit="handleRegister(event)">
+
+            <div class="form-group">
+                <label for="username">Tên tài khoản <span style="color: #b54949;">*</span></label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-user"></i>
+                    <input type="text" id="username" placeholder="Nhập tên đăng nhập (viết liền)..." required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Mật khẩu <span style="color: #b54949;">*</span></label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" id="password" placeholder="Nhập mật khẩu bí mật..." required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="fullName">Họ và tên</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-id-card"></i>
+                    <input type="text" id="fullName" placeholder="Ví dụ: Nguyễn Văn A...">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Địa chỉ Email</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-envelope"></i>
+                    <input type="email" id="email" placeholder="Ví dụ: docgia@gmail.com...">
+                </div>
+            </div>
+
+            <button type="submit" class="btn-register">Tạo Tài Khoản</button>
+        </form>
+
+        <div class="switch-page">
+            Bạn đã có tài khoản rồi? <a href="login.html">Đăng nhập ngay</a>
+        </div>
+    </div>
+
+    <script>
+        const REGISTER_API = "http://localhost:8080/api/auth/register";
+
+        function handleRegister(event) {
+            event.preventDefault(); // Chặn hành động tải lại trang mặc định của form
+
+            const usernameInput = document.getElementById("username").value.trim();
+            const passwordInput = document.getElementById("password").value;
+            const fullNameInput = document.getElementById("fullName").value.trim();
+            const emailInput = document.getElementById("email").value.trim();
+            const errorBox = document.getElementById("errorBox");
+
+            errorBox.style.display = "none";
+
+            // 2. ĐÓNG GÓI DỮ LIỆU (Bổ sung các trường boolean mặc định để tránh lỗi Jackson Parse Null)
+            const registerData = {
+                username: usernameInput,
+                password: passwordInput,
+                fullName: fullNameInput ? fullNameInput : null,
+                email: emailInput ? emailInput : null,
+
+                // Đảm bảo truyền giá trị boolean rõ ràng thay vì để null
+                status: true,        // Hoặc trường trạng thái hoạt động nếu có trong Entity của bạn
+                active: true,        // Thêm các trường này để "bù" vào trường nguyên thủy ở Backend
+                enabled: true
+            };
+
+            // 3. Tiến hành gọi fetch gửi lên Server
+            fetch(REGISTER_API, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(registerData)
+            })
+                .then(res => {
+                    // Nếu backend trả về mã lỗi (ví dụ: 400 Bad Request do trùng username)
+                    if (!res.ok) {
+                        return res.json().then(errData => {
+                            throw new Error(errData.message || "Đăng ký không thành công!");
+                        });
+                    }
+                    return res.json();
+                })
+                .then(data => {
+                    // Đăng ký thành công
+                    alert("🎉 Chúc mừng bạn đã đăng ký tài khoản thành công! Hãy đăng nhập nhé.");
+                    window.location.href = "login.html"; // Chuyển hướng sang trang đăng nhập
+                })
+                .catch(err => {
+                    // Hiển thị thông báo lỗi lên giao diện nếu trùng tài khoản
+                    errorBox.innerText = err.message;
+                    errorBox.style.display = "block";
+                });
+        }
+    </script>
+</body>
+
+</html>

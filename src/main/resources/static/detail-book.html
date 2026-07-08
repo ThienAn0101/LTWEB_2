@@ -14,21 +14,26 @@
             color: #8A6B4A;
             /* Màu chữ phụ sâu lắng */
             margin: 0;
-            /* ĐÃ SỬA: Đổi từ font Georgia sang font hệ thống hỗ trợ tiếng Việt mượt mà 100% */
             font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
         }
 
-        .client-body {
-            max-width: 950px;
-            margin: 0 auto;
-            padding: 40px 20px;
-        }
-
-        /* Header nhạt đồng bộ */
+        /* HEADER: Rộng toàn màn hình giống hệt trang chủ */
         .client-header {
             background-color: #C7AD84;
             border-bottom: 2px solid #C08B5C;
-            padding: 15px 40px;
+            padding: 15px 0;
+            /* ĐÃ SỬA: Đổi padding ngang về 0 để căn chỉnh bằng container bên trong */
+            display: flex;
+            justify-content: center;
+        }
+
+        /* Khung chứa nội dung bên trong header để căn giữa đều với thân trang */
+        .header-container {
+            width: 100%;
+            max-width: 1200px;
+            /* ĐÃ CHỈNH: Đồng bộ chuẩn kích thước vùng nội dung trang chủ */
+            padding: 0 20px;
+            box-sizing: border-box;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -66,6 +71,16 @@
             background-color: #FDFBF7;
             color: #8A6B4A;
             border-color: #FDFBF7;
+        }
+
+        /* BODY: Đã nâng kích thước để trùng khớp với form trang chủ */
+        .client-body {
+            width: 100%;
+            max-width: 1200px;
+            /* ĐÃ SỬA: Tăng từ 950px lên 1200px cho bằng khít trang chủ */
+            margin: 0 auto;
+            padding: 40px 20px;
+            box-sizing: border-box;
         }
 
         /* Bảng chi tiết sách nhạt hơn, tạo chiều sâu mềm mại */
@@ -182,7 +197,6 @@
             line-height: 1.8;
             color: #FDFBF7;
             /* Chữ trắng ngà của sách giấy cực dễ nhìn */
-            /* ĐÃ SỬA: Đổi sang text-align: left để bảo vệ dấu chữ tiếng Việt không bị kéo rách */
             text-align: left;
             white-space: pre-line;
             margin: 0;
@@ -194,10 +208,13 @@
 <body>
 
     <header class="client-header">
-        <div class="logo-container">
-            <span class="logo-text" onclick="location.href='index.html'">3T <span class="highlight">Story</span></span>
+        <div class="header-container">
+            <div class="logo-container">
+                <span class="logo-text" onclick="location.href='index.html'">3T <span
+                        class="highlight">Story</span></span>
+            </div>
+            <a href="index.html" class="back-home-btn"><i class="fa-solid fa-arrow-left-long"></i> Trở về</a>
         </div>
-        <a href="index.html" class="back-home-btn"><i class="fa-solid fa-arrow-left-long"></i> Trở về</a>
     </header>
 
     <main class="client-body">
@@ -254,7 +271,23 @@
                     if (book.coverUrl) document.getElementById('book-cover').src = `http://localhost:8080${book.coverUrl}`;
                     else document.getElementById('book-cover').src = 'https://via.placeholder.com/240x320/C7AD84/FDFBF7?text=3T+Story';
 
-                    document.getElementById('read-btn').href = `read-chapter.html?bookId=${bookId}&chapter=1`;
+                    document.getElementById('read-btn').addEventListener('click', function (event) {
+                        // Ngăn chặn trình duyệt tự động nhảy trang/cuộn trang mặc định của thẻ <a>
+                        event.preventDefault();
+
+                        // 1. Kiểm tra thông tin session người dùng ở localStorage (giống như backend trả về)
+                        const currentUser = localStorage.getItem("currentUser");
+
+                        // 2. Nếu chưa có dữ liệu đăng nhập
+                        if (!currentUser) {
+                            alert("Bạn cần đăng nhập để có thể bắt đầu đọc sách nhé! ☕");
+                            window.location.href = "login.html"; // Chuyển hướng sang trang đăng nhập
+                            return;
+                        }
+
+                        // 3. Nếu ĐÃ ĐĂNG NHẬP THÀNH CÔNG, tiến hành chuyển hướng sang chương đọc truyện
+                        window.location.href = `read-chapter.html?bookId=${bookId}&chapter=1`;
+                    });
                 })
                 .catch(error => {
                     location.href = 'index.html';

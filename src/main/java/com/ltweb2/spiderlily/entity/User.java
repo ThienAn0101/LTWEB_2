@@ -14,24 +14,35 @@ public class User {
     @Column(nullable = false, unique = true)
     private String username;
 
+    // 🌟 1. BỔ SUNG: Mật khẩu đăng nhập
+    @Column(nullable = false)
+    private String password;
+
     private String fullName;
 
     private String email;
 
     private LocalDate joinDate;
 
-    private boolean active = true; // true: Hoạt động, false: Bị khóa
+    private Boolean active = true; // true: Hoạt động, false: Bị khóa
+
+    // 🌟 2. BỔ SUNG: Vai trò tài khoản ("USER" hoặc "ADMIN")
+    @Column(nullable = false)
+    private String role = "USER";
 
     // --- CONSTRUCTOR ---
     public User() {
     }
 
-    public User(String username, String fullName, String email, LocalDate joinDate, boolean active) {
+    public User(String username, String password, String fullName, String email, LocalDate joinDate, boolean active,
+            String role) {
         this.username = username;
+        this.password = password;
         this.fullName = fullName;
         this.email = email;
         this.joinDate = joinDate;
         this.active = active;
+        this.role = role;
     }
 
     // --- GETTERS AND SETTERS ---
@@ -49,6 +60,15 @@ public class User {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    // 🌟 Getter/Setter cho Password
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public String getFullName() {
@@ -81,5 +101,14 @@ public class User {
 
     public void setActive(boolean active) {
         this.active = active;
+    }
+
+    // 🌟 Getter/Setter cho Role
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
     }
 }

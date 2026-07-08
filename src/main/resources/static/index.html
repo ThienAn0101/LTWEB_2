@@ -84,22 +84,45 @@
             color: #FDFBF7;
         }
 
-        .admin-link {
+        /* CSS CHO CÁC NÚT TÀI KHOẢN TRÊN HEADER */
+        .auth-btn {
             color: #FDFBF7;
             text-decoration: none;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 600;
             padding: 7px 14px;
             border-radius: 4px;
             border: 1px solid #C08B5C;
             background-color: #D6BE98;
             transition: all 0.3s;
+            cursor: pointer;
+            font-family: 'Merriweather', serif;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
         }
 
-        .admin-link:hover {
+        .auth-btn:hover {
             background: #FDFBF7;
             color: #8A6B4A;
             border-color: #FDFBF7;
+        }
+
+        .logout-btn {
+            background-color: #8A6B4A;
+            border-color: #8A6B4A;
+        }
+
+        .logout-btn:hover {
+            background-color: #b54949;
+            color: white;
+            border-color: #b54949;
+        }
+
+        .user-welcome-txt {
+            color: #2D1F18;
+            font-size: 14px;
+            font-weight: bold;
         }
 
         .section-title {
@@ -276,13 +299,14 @@
         <div class="logo-container">
             <span class="logo-text" onclick="location.href='index.html'">3T <span class="highlight">Story</span></span>
         </div>
+
         <div class="search-bar">
             <i class="fa-solid fa-magnifying-glass"></i>
             <input type="text" id="searchInput" placeholder="Tìm kiếm tựa truyện nhẹ nhàng...">
         </div>
-        <a href="manage-books.html" class="admin-link">
-            <i class="fa-solid fa-user-shield"></i> Góc Quản Trị
-        </a>
+
+        <div id="authHeaderZone" style="display: flex; align-items: center; gap: 8px;">
+        </div>
     </header>
 
     <main class="client-body">
@@ -311,7 +335,36 @@
         let currentSlideIndex = 0;
         let totalSlides = 0;
 
-        // 🌟 1. HÀM TẢI BANNER TỪ SPRING BOOT VÀ ĐỔ RA SLIDER
+        // 1. LOGIC KIỂM TRA TRẠNG THÁI ĐĂNG NHẬP ĐỂ ĐỔI NÚT HEADER
+        function checkLoginStatus() {
+            const authZone = document.getElementById("authHeaderZone");
+            const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+
+            if (currentUser) {
+                let adminButtonHtml = "";
+                if (currentUser.role === "ADMIN") {
+                    adminButtonHtml = `<a href="manage-books.html" class="auth-btn"><i class="fa-solid fa-user-shield"></i> Góc Quản Trị</a>`;
+                }
+
+                authZone.innerHTML = `
+                    <span class="user-welcome-txt">Chào, ${currentUser.fullName || currentUser.username}</span>
+                    ${adminButtonHtml}
+                    <button onclick="handleLogout()" class="auth-btn logout-btn"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất</button>
+                `;
+            } else {
+                authZone.innerHTML = `
+                    <a href="login.html" class="auth-btn"><i class="fa-solid fa-key"></i> Đăng nhập</a>
+                    <a href="register.html" class="auth-btn"><i class="fa-solid fa-user-plus"></i> Đăng ký</a>
+                `;
+            }
+        }
+
+        function handleLogout() {
+            localStorage.removeItem("currentUser");
+            window.location.reload();
+        }
+
+        // 2. HÀM TẢI BANNER TỪ SPRING BOOT VÀ ĐỔ RA SLIDER
         function loadBannersToHome() {
             fetch(BANNER_API)
                 .then(res => res.json())
@@ -323,7 +376,6 @@
                     dotsContainer.innerHTML = "";
 
                     if (!banners || banners.length === 0) {
-                        // Nếu không có dữ liệu, ẩn toàn bộ khối slider đi
                         document.querySelector(".banner-slider-container").style.display = "none";
                         return;
                     }
@@ -336,24 +388,17 @@
                             finalImgUrl = "http://localhost:8080" + finalImgUrl;
                         }
 
-                        // Tạo thẻ liên kết ảnh
                         const slideLink = document.createElement("a");
                         slideLink.href = banner.linkToBook || "#";
                         slideLink.className = "slider-item";
                         slideLink.innerHTML = `<img src="${finalImgUrl}" alt="${banner.title}" onerror="this.src='https://via.placeholder.com/1200x380?text=Loi+Anh+Banner'">`;
                         wrapper.appendChild(slideLink);
 
-                        // Tạo dấu chấm
                         const dot = document.createElement("div");
                         dot.className = `dot ${index === 0 ? 'active' : ''}`;
                         dot.setAttribute("onclick", `goToSlide(${index})`);
                         dotsContainer.appendChild(dot);
                     });
-
-                    // Tự động lướt banner sau mỗi 5 giây
-                    setInterval(() => {
-                        moveSlider(1);
-                    }, 5000);
                 })
                 .catch(err => {
                     console.error("Lỗi khi tải banner:", err);
@@ -361,7 +406,11 @@
                 });
         }
 
-        // Các hàm xử lý hiệu ứng lướt qua lại của Slider
+        // Tự động chuyển Slide mỗi 5 giây
+        setInterval(() => {
+            moveSlider(1);
+        }, 5000);
+
         function moveSlider(direction) {
             if (totalSlides === 0) return;
             currentSlideIndex += direction;
@@ -377,7 +426,7 @@
 
         function updateSliderPosition() {
             const wrapper = document.getElementById("sliderWrapper");
-            wrapper.style.transform = `translateX(-${currentSlideIndex * 100}%)`;
+            if (wrapper) wrapper.style.transform = `translateX(-${currentSlideIndex * 100}%)`;
 
             const dots = document.querySelectorAll(".slider-dots .dot");
             dots.forEach((dot, idx) => {
@@ -389,11 +438,11 @@
             });
         }
 
-        // 🌟 2. HÀM TẢI TRUYỆN CŨ CỦA BẠN (GIỮ NGUYÊN)
+        // 3. HÀM TẢI TRUYỆN CŨ CỦA BẠN
         function loadAllBooksToHome() {
             fetch(BOOK_API)
                 .then(response => {
-                    if (!response.ok) throw new Error("Lỗi!");
+                    if (!response.ok) throw new Error("Lỗi mạng!");
                     return response.json();
                 })
                 .then(books => {
@@ -422,12 +471,14 @@
                     });
                 })
                 .catch(error => {
+                    console.error("Lỗi khi tải truyện:", error);
                     document.getElementById('books-container').innerHTML = `<p style="color: #8A6B4A; grid-column: 1/-1; text-align: center;">❌ Lỗi kết nối đến thư viện Spring Boot.</p>`;
                 });
         }
 
-        // 🌟 KÍCH HOẠT CHẠY ĐỒNG THỜI CẢ BANNER VÀ TRUYỆN KHI VÀO TRANG CHỦ
+        // KÍCH HOẠT CHẠY ĐỒNG THỜI HEADER, BANNER VÀ TRUYỆN KHI VÀO TRANG CHỦ
         document.addEventListener('DOMContentLoaded', () => {
+            checkLoginStatus();
             loadBannersToHome();
             loadAllBooksToHome();
         });

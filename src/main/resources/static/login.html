@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <title>3T Story - Đăng Nhập</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7ebd9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .auth-container {
+            background: #ecdcb9;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            width: 350px;
+            text-align: center;
+        }
+
+        .auth-container h2 {
+            color: #2D1F18;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #2D1F18;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #c8b794;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        .btn-auth {
+            width: 100%;
+            padding: 12px;
+            background-color: #bfa07a;
+            border: none;
+            color: white;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        .btn-auth:hover {
+            background-color: #a4845e;
+        }
+
+        .toggle-link {
+            margin-top: 15px;
+            display: block;
+            color: #705435;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="auth-container">
+        <div id="loginForm">
+            <h2>ĐĂNG NHẬP 3T STORY</h2>
+            <div class="form-group">
+                <label>Tài khoản</label>
+                <input type="text" id="loginUsername" placeholder="Nhập tài khoản...">
+            </div>
+            <div class="form-group">
+                <label>Mật khẩu</label>
+                <input type="password" id="loginPassword" placeholder="Nhập mật khẩu...">
+            </div>
+            <button class="btn-auth" onclick="handleLogin()">Đăng Nhập</button>
+
+            <span class="toggle-link" onclick="window.location.href='register.html'">Chưa có tài khoản? Đăng ký
+                ngay</span>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = "http://localhost:8080/api/auth";
+
+        // Xử lý logic Đăng Nhập
+        function handleLogin() {
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+
+            if (!username || !password) {
+                alert("Vui lòng nhập tài khoản và mật khẩu!");
+                return;
+            }
+
+            fetch(`${API_URL}/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            })
+                .then(res => res.json().then(data => ({ status: res.status, body: data })))
+                .then(res => {
+                    if (res.status === 200) {
+                        // Lưu thông tin đăng nhập vào hệ thống bộ nhớ trình duyệt
+                        localStorage.setItem("currentUser", JSON.stringify(res.body));
+                        alert("Chào mừng " + res.body.fullName + " quay trở lại!");
+                        window.location.href = "index.html";
+                    } else {
+                        alert(res.body.message);
+                    }
+                })
+                .catch(err => {
+                    console.error("Lỗi đăng nhập:", err);
+                    alert("Không thể kết nối đến máy chủ Backend!");
+                });
+        }
+    </script>
+</body>
+
+</html>
