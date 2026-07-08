@@ -4,223 +4,586 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đang đọc chương... - 3T Story</title>
+    <title>Đọc Truyện - 3T Story</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400&display=swap"
+        rel="stylesheet">
 
     <style>
         body {
             background-color: #F2E7D4;
-            /* [Giấy kem nhạt] Tối ưu cho mắt khi đọc lâu */
-            color: #4A3B2C;
-            /* Màu chữ nâu trầm sâu lắng */
+            color: #2D1F18;
             margin: 0;
-            /* ĐÃ SỬA: Đổi sang font hệ thống để hiển thị tiếng Việt tròn trịa, không bị rách chữ */
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-            line-height: 2.0;
-            /* Khoảng cách dòng rộng rãi, dễ theo dõi */
+            font-family: 'Merriweather', 'Georgia', serif;
         }
 
-        .reading-container {
-            max-width: 800px;
-            /* Bóp hẹp chiều rộng vừa tầm mắt liếc */
-            margin: 0 auto;
-            padding: 40px 20px 100px 20px;
-        }
-
-        /* Thanh công cụ nhỏ phía trên */
-        .reading-actions {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px dashed #C7AD84;
-            padding-bottom: 15px;
-            margin-bottom: 30px;
-        }
-
-        .action-btn {
-            color: #8A6B4A;
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            transition: color 0.2s;
-        }
-
-        .action-btn:hover {
-            color: #C08B5C;
-            /* Ánh đèn rực lên */
-        }
-
-        /* Phần tên truyện và tiêu đề chương */
-        .story-title {
-            font-size: 16px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #8A6B4A;
-            text-align: center;
-            margin: 0 0 10px 0;
-        }
-
-        .chapter-title {
-            font-size: 26px;
-            color: #8A6B4A;
-            text-align: center;
-            margin: 0 0 40px 0;
-            font-weight: 700;
-            line-height: 1.4;
-        }
-
-        /* Khung chứa nội dung chữ truyện */
-        .chapter-content {
-            font-size: 20px;
-            color: #3D3124;
-            /* ĐÃ SỬA: Căn lề trái (left) để chữ tiếng Việt không bị trình duyệt kéo dãn làm vỡ dấu */
-            text-align: left;
-            white-space: pre-line;
-            /* Giữ nguyên các đoạn xuống dòng từ Database */
-            margin-bottom: 50px;
-            letter-spacing: normal;
-            /* Giữ khoảng cách chữ tự nhiên */
-        }
-
-        /* Thanh điều hướng Chương Trước / Chương Sau ở đáy trang */
-        .navigation-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-top: 1px dashed #C7AD84;
-            padding-top: 30px;
-            margin-top: 50px;
-        }
-
-        .nav-btn {
+        .client-header {
             background-color: #C7AD84;
-            /* Gỗ nhạt tĩnh lặng */
+            border-bottom: 2px solid #C08B5C;
+            padding: 15px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(138, 107, 74, 0.1);
+        }
+
+        .logo-text {
+            font-size: 24px;
+            font-weight: 700;
             color: #FDFBF7;
-            /* Chữ trắng ngà */
-            border: 1px solid #D6BE98;
-            padding: 10px 24px;
-            font-size: 15px;
-            font-weight: 600;
-            border-radius: 4px;
             text-decoration: none;
-            display: inline-flex;
+            letter-spacing: 1px;
+            cursor: pointer;
+            font-family: 'Playfair Display', serif;
+        }
+
+        .logo-text .highlight {
+            color: #8A6B4A;
+            background-color: #F2E7D4;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-left: 6px;
+        }
+
+        /* --- BỐ CỤC CHÍNH HAI CỘT --- */
+        .main-layout {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 25px 20px;
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            /* Cột trái 280px, cột phải chiếm hết chỗ còn lại */
+            gap: 25px;
+        }
+
+        /* --- CỘT TRÁI: MỤC LỤC TRUYỆN --- */
+        .sidebar-toc {
+            background-color: #FAF4EB;
+            border: 1px solid #D6BE98;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(138, 107, 74, 0.05);
+            height: fit-content;
+            max-height: 600px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-toc h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-family: 'Playfair Display', serif;
+            color: #8A6B4A;
+            border-bottom: 2px solid #D6BE98;
+            padding-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .chapter-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            overflow-y: auto;
+            /* Cuộn danh sách nếu quá nhiều chương */
+            flex-grow: 1;
+        }
+
+        .chapter-item {
+            padding: 10px 12px;
+            margin-bottom: 6px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .chapter-item:hover {
+            background-color: #EADBC8;
+            color: #8A6B4A;
+        }
+
+        .chapter-item.active {
+            background-color: #8A6B4A;
+            color: #FDFBF7;
+            font-weight: bold;
+        }
+
+        /* --- CỘT PHẢI: VÙNG NỘI DUNG ĐỌC --- */
+        .reader-body {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #D6BE98;
+            border: 1px solid #C08B5C;
+            padding: 10px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .font-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #2D1F18;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .btn-tool {
+            background-color: #8A6B4A;
+            color: #FDFBF7;
+            border: 1px solid #8A6B4A;
+            padding: 6px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+
+        .btn-tool:hover {
+            background-color: #FDFBF7;
+            color: #8A6B4A;
+        }
+
+        .font-size-val {
+            min-width: 45px;
+            text-align: center;
+            display: inline-block;
+        }
+
+        /* --- KHUNG CHỨA SÁCH --- */
+        .reader-outer-wrap {
+            width: 100%;
+            background-color: #FAF4EB;
+            border: 1px solid #D6BE98;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(138, 107, 74, 0.1);
+            box-sizing: border-box;
+            padding: 30px 40px 40px 40px;
+        }
+
+        /* Tiêu đề chương trên đầu khối nội dung */
+        .content-header-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 24px;
+            font-weight: 700;
+            color: #8A6B4A;
+            text-align: center;
+            margin-top: 0;
+            margin-bottom: 25px;
+            border-bottom: 1px dashed #D6BE98;
+            padding-bottom: 15px;
+        }
+
+        .reader-container {
+            width: 100%;
+            height: 460px;
+            overflow: hidden;
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        .book-pages {
+            height: 100%;
+            width: 100%;
+            columns: 1;
+            column-fill: auto;
+            column-gap: 40px;
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+            transition: transform 0.4s ease-in-out;
+        }
+
+        .book-pages p {
+            margin-top: 0;
+            margin-bottom: 18px;
+            line-height: 1.8;
+            text-align: justify;
+            text-indent: 30px;
+            break-inside: avoid;
+        }
+
+        /* --- THANH ĐIỀU HƯỚNG TRANG & CHƯƠNG --- */
+        .page-controls-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+
+        .btn-nav {
+            background-color: #D6BE98;
+            color: #2D1F18;
+            border: 1px solid #C08B5C;
+            padding: 10px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
             align-items: center;
             gap: 8px;
             transition: all 0.3s;
-            cursor: pointer;
+            font-size: 14px;
         }
 
-        .nav-btn:hover {
+        .btn-nav:hover:not(:disabled) {
+            background-color: #8A6B4A;
+            color: #FDFBF7;
+        }
+
+        /* Nút đổi Chương nhanh màu đậm hơn để phân biệt với lật Trang */
+        .btn-chapter-nav {
             background-color: #C08B5C;
-            /* Ánh đèn rọi ấm áp */
-            transform: translateY(-1px);
+            color: #FDFBF7;
+            border-color: #8A6B4A;
         }
 
-        .nav-btn.disabled {
-            background-color: #E6DBC4;
-            color: #BEB29A;
-            border-color: #E6DBC4;
+        .btn-nav:disabled {
+            opacity: 0.4;
             cursor: not-allowed;
-            pointer-events: none;
-            /* Khóa không cho bấm */
+        }
+
+        #pageInfo {
+            font-weight: 600;
+            color: #8A6B4A;
+            min-width: 90px;
+            text-align: center;
         }
     </style>
 </head>
 
 <body>
 
-    <div class="reading-container">
-        <div class="reading-actions">
-            <a href="#" id="back-to-detail" class="action-btn">
-                <i class="fa-solid fa-arrow-left"></i> Trở về tủ sách
-            </a>
-            <a href="index.html" class="action-btn">
-                <i class="fa-solid fa-house"></i> Trang chủ
-            </a>
+    <header class="client-header">
+        <div class="logo-container">
+            <span class="logo-text" onclick="location.href='index.html'">3T <span class="highlight">Story</span></span>
         </div>
-
-        <p class="story-title" id="text-story-title">Tên Bộ Truyện</p>
-        <h1 class="chapter-title" id="text-chapter-title">Chương...: Đang mở hòm sách...</h1>
-
-        <div class="chapter-content" id="chapter-text-content">
-            Đang thắp đèn đọc sách, xin vui lòng đợi trong giây lát...
+    
+        <div class="header-right-side" style="display: flex; align-items: center; gap: 15px;">
+            <div style="color: #FDFBF7; font-weight: bold;" id="headerBookTitle">Đang tải truyện...</div>
+    
+            <div class="user-avatar-container" id="userArea" style="display: flex; align-items: center;">
+                <img id="userAvatar" src="assets/images/default-avatar.png" alt="Avatar"
+                    style="width: 35px; height: 35px; border-radius: 50%; object-fit: cover; border: 2px solid #FDFBF7; cursor: pointer;">
+            </div>
         </div>
+    </header>
 
-        <div class="navigation-bar">
-            <a href="#" id="btn-prev" class="nav-btn"><i class="fa-solid fa-chevron-left"></i> Chương trước</a>
-            <a href="#" id="btn-next" class="nav-btn">Chương sau <i class="fa-solid fa-chevron-right"></i></a>
-        </div>
+    <div class="main-layout">
+
+        <aside class="sidebar-toc">
+            <h3><i class="fa-solid fa-list-ol"></i> Mục lục chương</h3>
+            <ul class="chapter-list" id="sidebarChapterList">
+            </ul>
+        </aside>
+
+        <main class="reader-body">
+            <div class="toolbar">
+                <div class="font-controls">
+                    <i class="fa-solid fa-font"></i> Kích thước chữ:
+                    <button id="btnDecreaseFont" class="btn-tool"><i class="fa-solid fa-minus"></i></button>
+                    <span id="currentFontSize" class="font-size-val">18px</span>
+                    <button id="btnIncreaseFont" class="btn-tool"><i class="fa-solid fa-plus"></i></button>
+                </div>
+                <div style="font-size: 13px; color: #8A6B4A; font-style: italic;">
+                    <i class="fa-solid fa-circle-info"></i> Dùng nút bấm hoặc phím mũi tên ← → để lật trang
+                </div>
+            </div>
+
+            <div class="reader-outer-wrap">
+                <h2 class="content-header-title" id="contentChapterTitle">Đang tải tên chương...</h2>
+
+                <div class="reader-container">
+                    <div class="book-pages" id="storyContent"></div>
+                </div>
+            </div>
+
+            <div class="page-controls-wrapper">
+                <button id="btnPrevChapter" class="btn-nav btn-chapter-nav"
+                    onclick="changeChapter(currentChapterNum - 1)">
+                    <i class="fa-solid fa-backward-step"></i> <span id="lblPrevChapter">Chương trước</span>
+                </button>
+
+                <button id="btnPrevPage" class="btn-nav" disabled>
+                    <i class="fa-solid fa-arrow-left"></i> Trang trước
+                </button>
+
+                <span id="pageInfo">Trang 1 / 1</span>
+
+                <button id="btnNextPage" class="btn-nav">
+                    Trang sau <i class="fa-solid fa-arrow-right"></i>
+                </button>
+
+                <button id="btnNextChapter" class="btn-nav btn-chapter-nav"
+                    onclick="changeChapter(currentChapterNum + 1)">
+                    <span id="lblNextChapter">Chương sau</span> <i class="fa-solid fa-forward-step"></i>
+                </button>
+            </div>
+        </main>
     </div>
 
     <script>
-        // 1. Phân tích tham số trên URL (?bookId=...&chapter=...)
         const urlParams = new URLSearchParams(window.location.search);
-        const bookId = urlParams.get('bookId');
-        let currentChapter = parseInt(urlParams.get('chapter')) || 1;
+        const bookId = urlParams.get('bookId') || '1';
+        let currentChapterNum = parseInt(urlParams.get('chapter')) || 1; // Lưu dạng số để làm phép cộng trừ
 
-        if (!bookId) {
-            location.href = 'index.html';
+        let currentPage = 0;
+        let currentSize = 18;
+        const minSize = 14;
+        const maxSize = 30;
+
+        const storyContent = document.getElementById('storyContent');
+        const headerBookTitle = document.getElementById('headerBookTitle');
+        const contentChapterTitle = document.getElementById('contentChapterTitle');
+
+        const btnPrevPage = document.getElementById('btnPrevPage');
+        const btnNextPage = document.getElementById('btnNextPage');
+        const pageInfo = document.getElementById('pageInfo');
+        const fontDisplay = document.getElementById('currentFontSize');
+
+        const btnPrevChapter = document.getElementById('btnPrevChapter');
+        const btnNextChapter = document.getElementById('btnNextChapter');
+        const lblPrevChapter = document.getElementById('lblPrevChapter');
+        const lblNextChapter = document.getElementById('lblNextChapter');
+        const sidebarChapterList = document.getElementById('sidebarChapterList');
+
+        // --- HÀM 1 & 2: GỌI ĐỒNG THỜI ĐỂ TẢI DỮ LIỆU ---
+        async function loadData() {
+            currentPage = 0; // Reset trang về 0 khi chuyển chương
+            await Promise.all([
+                fetchChapterContent(), // Lấy chi tiết nội dung chương đang đọc
+                fetchSidebarChapters() // Lấy toàn bộ danh sách chương đổ vào mục lục bên trái
+            ]);
         }
 
-        // Cập nhật nút quay lại trang chi tiết đúng ID của truyện
-        document.getElementById('back-to-detail').href = `detail-book.html?id=${bookId}`;
+        // Lấy nội dung chi tiết chương
+        async function fetchChapterContent() {
+            try {
+                contentChapterTitle.innerText = "Đang tải dữ liệu...";
+                storyContent.innerHTML = "<p>Đang tải nội dung từ hệ thống...</p>";
 
-        // 2. Hàm gọi API lấy nội dung chương từ Backend
-        function loadChapterData() {
-            const API_URL = `http://localhost:8080/api/books/${bookId}/chapters/${currentChapter}`;
+                const response = await fetch(`http://localhost:8080/api/books/${bookId}/chapters/${currentChapterNum}`);
 
-            fetch(API_URL)
-                .then(response => {
-                    if (!response.ok) throw new Error("Hết chương hoặc lỗi dữ liệu");
-                    return response.json();
-                })
-                .then(data => {
-                    // Đổ dữ liệu từ Backend vào giao diện
-                    document.getElementById('text-story-title').textContent = data.bookTitle || "3T Story";
-                    document.getElementById('text-chapter-title').textContent = `Chương ${currentChapter}: ${data.title || ''}`;
-                    document.getElementById('chapter-text-content').textContent = data.content;
+                if (response.status === 404) {
+                    headerBookTitle.innerText = "Thông báo";
+                    contentChapterTitle.innerText = "Chưa cập nhật nội dung";
+                    storyContent.innerHTML = `
+                        <div style="text-align: center; padding: 40px 20px; color: #8A6B4A;">
+                            <i class="fa-solid fa-book-open" style="font-size: 48px; margin-bottom: 15px; opacity: 0.7;"></i>
+                            <p style="font-size: 20px; font-weight: bold; margin: 0;">Truyện sẽ được cập nhật sau!</p>
+                            <p style="font-size: 14px; color: #a1835f; font-style: italic; margin-top: 8px;">Chương truyện này hiện chưa có nội dung hoặc đang trong quá trình biên tập.</p>
+                        </div>
+                    `;
+                    pageInfo.innerText = "Trang 1 / 1";
+                    btnPrevPage.disabled = true;
+                    btnNextPage.disabled = true;
+                    updateChapterNavButtons(); // Vẫn cập nhật trạng thái nút chương để quay lại
+                    return;
+                }
 
-                    // Xử lý nút quay lại chương trước
-                    const prevBtn = document.getElementById('btn-prev');
-                    if (currentChapter <= 1) {
-                        prevBtn.classList.add('disabled');
-                    } else {
-                        prevBtn.classList.remove('disabled');
-                        prevBtn.href = `read-chapter.html?bookId=${bookId}&chapter=${currentChapter - 1}`;
-                    }
+                if (!response.ok) throw new Error(`Lỗi hệ thống! (Mã: ${response.status})`);
 
-                    // Đmax SỬA LOGIC: Kiểm tra chính xác thuộc tính "data.last" trả về từ Backend DTO
-                    const nextBtn = document.getElementById('btn-next');
-                    if (data.last === true) {
-                        nextBtn.classList.add('disabled');
-                        nextBtn.removeAttribute('href');
-                    } else {
-                        nextBtn.classList.remove('disabled');
-                        nextBtn.href = `read-chapter.html?bookId=${bookId}&chapter=${currentChapter + 1}`;
-                    }
+                const chapterData = await response.json();
 
-                    // Cuộn màn hình lên đầu trang mượt mà
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                })
-                .catch(error => {
-                    // Xử lý báo lỗi nhẹ nhàng khi lỗi hoặc hết chương
-                    document.getElementById('text-chapter-title').textContent = "Hết trọn bộ truyện";
-                    document.getElementById('chapter-text-content').innerHTML = `<p style="text-align:center; color:#8A6B4A;">Bạn đã đọc hết các chương hiện có của bộ truyện này rồi. Hãy quay lại tủ sách để chọn bộ truyện khác nhé! ☕</p>`;
-                    document.getElementById('btn-next').classList.add('disabled');
+                // Đổ dữ liệu lên màn hình
+                headerBookTitle.innerText = chapterData.bookTitle || "3T Story";
+                contentChapterTitle.innerText = chapterData.title || `Chương ${currentChapterNum}`;
+                storyContent.innerHTML = chapterData.content;
 
-                    if (currentChapter > 1) {
-                        document.getElementById('btn-prev').href = `read-chapter.html?bookId=${bookId}&chapter=${currentChapter - 1}`;
-                    } else {
-                        document.getElementById('btn-prev').classList.add('disabled');
-                    }
-                });
+                // Đồng bộ cỡ chữ
+                const savedSize = localStorage.getItem('readerFontSize');
+                if (savedSize) {
+                    currentSize = parseInt(savedSize);
+                    storyContent.style.fontSize = currentSize + 'px';
+                    fontDisplay.innerText = currentSize + 'px';
+                }
+
+                setTimeout(updatePagination, 300);
+                updateChapterNavButtons();
+
+            } catch (error) {
+                console.error(error);
+                contentChapterTitle.innerText = "Mất kết nối";
+                storyContent.innerHTML = `<p style="color:red; text-align:center;">⚠️ Lỗi kết nối đến Server Backend!</p>`;
+            }
         }
 
-        // Kích hoạt nạp dữ liệu khi trang web sẵn sàng
-        window.addEventListener('DOMContentLoaded', loadChapterData);
+        // Tạo một biến toàn cục để lưu tổng số chương của cuốn truyện
+            let totalChaptersCount = 0;
+
+            // 1. CẬP NHẬT HÀM LẤY DANH SÁCH CHƯƠNG ĐỂ LƯU TỔNG SỐ CHƯƠNG
+            async function fetchSidebarChapters() {
+                try {
+                    const response = await fetch(`http://localhost:8080/api/books/${bookId}/chapters`);
+                    if (!response.ok) return;
+
+                    const chapters = await response.json();
+                    sidebarChapterList.innerHTML = ""; // Xóa danh sách cũ
+
+                    // 🌟 LƯU TỔNG SỐ CHƯƠNG THỰC TẾ VÀO BIẾN
+                    totalChaptersCount = chapters.length;
+
+                    if (chapters.length === 0) {
+                        sidebarChapterList.innerHTML = `<li style="font-style:italic; color:#999; font-size:13px; text-align:center;">Chưa có danh sách chương</li>`;
+                        return;
+                    }
+
+                    // Lặp qua từng chương và chèn vào mục lục
+                    chapters.forEach(ch => {
+                        const li = document.createElement('li');
+                        li.className = `chapter-item ${ch.chapterNumber === currentChapterNum ? 'active' : ''}`;
+                        li.innerText = ch.title || `Chương ${ch.chapterNumber}`;
+                        li.title = ch.title;
+                        li.onclick = () => {
+                            if (ch.chapterNumber !== currentChapterNum) {
+                                changeChapter(ch.chapterNumber);
+                            }
+                        };
+                        sidebarChapterList.appendChild(li);
+                    });
+
+                    // 🌟 Gọi lại hàm cập nhật nút sau khi đã biết chính xác tổng số chương
+                    updateChapterNavButtons();
+
+                } catch (err) {
+                    console.error("Không thể lấy danh sách mục lục:", err);
+                }
+            }
+
+        // --- HÀM XỬ LÝ ĐỔI CHƯƠNG NHANH ---
+        function changeChapter(newChapterNum) {
+            currentChapterNum = newChapterNum;
+            // Đẩy số chương mới lên thanh URL mà không làm load lại trang (giúp app chạy mượt hơn)
+            const newUrl = `${window.location.pathname}?bookId=${bookId}&chapter=${currentChapterNum}`;
+            window.history.pushState({ path: newUrl }, '', newUrl);
+
+            // Tiến hành tải lại dữ liệu chương mới
+            loadData();
+        }
+
+        // 2. CẬP NHẬT LOGIC ĐIỀU KIỆN CHO NÚT CHUYỂN CHƯƠNG
+            function updateChapterNavButtons() {
+                // --- XỬ LÝ NÚT CHƯƠNG TRƯỚC (GIỮ NGUYÊN) ---
+                if (currentChapterNum > 1) {
+                    btnPrevChapter.disabled = false;
+                    lblPrevChapter.innerText = `Chương ${currentChapterNum - 1}`;
+                } else {
+                    btnPrevChapter.disabled = true;
+                    lblPrevChapter.innerText = `Hết chương trước`;
+                }
+
+                // --- 🌟 XỬ LÝ NÚT CHƯƠNG SAU THEO YÊU CẦU ---
+                // Trường hợp 1: Số chương hiện tại lớn hơn hoặc bằng tổng số chương trong database
+                if (totalChaptersCount > 0 && currentChapterNum >= totalChaptersCount) {
+                    btnNextChapter.disabled = true; // Khóa không cho bấm nữa
+                    lblNextChapter.innerText = `Kết thúc`; // Hiển thị chữ Kết thúc
+                }
+                // Trường hợp 2: Vẫn còn chương tiếp theo để đọc
+                else {
+                    btnNextChapter.disabled = false; // Mở khóa nút
+                    lblNextChapter.innerText = `Chương ${currentChapterNum + 1}`; // Hiện số chương tiếp theo
+                }
+            }
+
+        // --- HÀM TÍNH TOÁN LẬT TRANG CHỮ (GIỮ NGUYÊN HOẠT ĐỘNG CHUẨN XÁC) ---
+        function updatePagination() {
+                if (!storyContent || storyContent.scrollWidth === 0) return;
+
+                const pageWidth = storyContent.clientWidth;
+                const gap = 40;
+                const stepShift = pageWidth + gap;
+
+                // 🌟 SỬA TẠI ĐÂY: Trừ bớt một khoảng sai số nhỏ (Ví dụ: 10px-20px) 
+                // để tránh việc trình duyệt tính nhầm các khoảng trống margin/padding thành một trang mới.
+                const tolerance = 20;
+                const totalPages = Math.ceil((storyContent.scrollWidth - tolerance + gap) / stepShift);
+
+                // Đảm bảo trang hiện tại không vượt quá tổng số trang mới tính toán
+                if (currentPage >= totalPages) currentPage = Math.max(0, totalPages - 1);
+
+                // Cập nhật trạng thái khóa/mở nút Trang trước & Trang sau
+                btnPrevPage.disabled = currentPage === 0;
+                btnNextPage.disabled = currentPage >= totalPages - 1 || totalPages <= 1;
+
+                // Hiển thị thông tin số trang thực tế lên giao diện
+                pageInfo.innerText = `Trang ${currentPage + 1} / ${totalPages || 1}`;
+
+                // Di chuyển thanh cuộn ngang dịch chữ theo trang
+                storyContent.style.transform = `translateX(-${currentPage * stepShift}px)`;
+            }
+
+        btnNextPage.addEventListener('click', () => {
+            currentPage++;
+            updatePagination();
+        });
+
+        btnPrevPage.addEventListener('click', () => {
+            currentPage--;
+            updatePagination();
+        });
+
+        document.addEventListener("DOMContentLoaded", function () {
+                // 1. Lấy thông tin user đã lưu trong localStorage (tùy thuộc vào cách bạn lưu ở trang đăng nhập)
+                // Ví dụ: localStorage.setItem("currentUser", JSON.stringify({ name: "Thiên Ân", avatar: "url_anh..." }))
+                const currentUser = JSON.getObj = JSON.parse(localStorage.getItem("currentUser")) || null;
+
+                const userAvatar = document.getElementById("userAvatar");
+                const userArea = document.getElementById("userArea");
+
+                if (currentUser) {
+                    // Nếu tìm thấy người dùng đã đăng nhập
+                    if (currentUser.avatar) {
+                        userAvatar.src = currentUser.avatar; // Đổ link ảnh avatar của user vào
+                    } else {
+                        // Nếu không có avatar riêng, dùng ảnh mặc định hoặc tạo hình tròn chữ cái đầu như ảnh trang chủ
+                        userAvatar.src = "https://ui-avatars.com/api/?name=" + encodeURIComponent(currentUser.name || "User") + "&background=random";
+                    }
+                    userAvatar.title = `Chào, ${currentUser.name || 'Người dùng'}`;
+                } else {
+                    // Nếu chưa đăng nhập, bạn có thể ẩn avatar đi hoặc đổi thành nút "Đăng nhập"
+                    userArea.innerHTML = `<button onclick="location.href='login.html'" style="background: #a3704c; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Đăng nhập</button>`;
+                }
+            });
+
+        function changeFontSize(amount) {
+            currentSize += amount;
+            if (currentSize < minSize) currentSize = minSize;
+            if (currentSize > maxSize) currentSize = maxSize;
+
+            storyContent.style.fontSize = currentSize + 'px';
+            fontDisplay.innerText = currentSize + 'px';
+            localStorage.setItem('readerFontSize', currentSize);
+
+            currentPage = 0;
+            setTimeout(updatePagination, 100);
+        }
+
+        document.getElementById('btnDecreaseFont').addEventListener('click', () => changeFontSize(-2));
+        document.getElementById('btnIncreaseFont').addEventListener('click', () => changeFontSize(2));
+
+        window.addEventListener('resize', () => {
+            currentPage = 0;
+            updatePagination();
+        });
+
+        document.addEventListener('DOMContentLoaded', loadData);
     </script>
 </body>
 

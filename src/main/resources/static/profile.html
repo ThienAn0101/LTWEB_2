@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thông tin cá nhân - 3T Story</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #F4EAD4;
+            color: #4A3728;
+            margin: 0;
+            padding: 0;
+        }
+
+        .client-header {
+            background-color: #CDB380;
+            padding: 15px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo-text {
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .highlight {
+            color: #8B5A2B;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 30px auto;
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+            padding: 0 20px;
+        }
+
+        .card {
+            background: #FDFBF7;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .avatar-section {
+            text-align: center;
+        }
+
+        .avatar-preview-container {
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            border: 3px solid #CDB380;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .avatar-preview-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .upload-btn-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+
+        .btn-upload {
+            border: 1px solid #A3704C;
+            color: #A3704C;
+            background-color: white;
+            padding: 8px 20px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .upload-btn-wrapper input[type=file] {
+            font-size: 100px;
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #CDB380;
+            border-radius: 4px;
+            box-sizing: border-box;
+            background-color: #FDFBF7;
+        }
+
+        .btn-submit {
+            background-color: #A3704C;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            width: 100%;
+        }
+
+        .btn-submit:hover {
+            background-color: #8B5A2B;
+        }
+
+        .btn-logout {
+            background-color: #C94C4C;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        .list-section-title {
+            font-size: 18px;
+            border-bottom: 2px solid #CDB380;
+            padding-bottom: 5px;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .book-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 15px;
+        }
+
+        .book-item {
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .book-item img {
+            width: 100%;
+            height: 170px;
+            object-fit: cover;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .book-item p {
+            margin: 5px 0 0;
+            font-size: 13px;
+            font-weight: bold;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="client-header">
+        <div class="logo-container">
+            <span class="logo-text" onclick="location.href='index.html'">3T <span class="highlight">Story</span></span>
+        </div>
+        <button onclick="location.href='index.html'"
+            style="background: transparent; border: 1px solid #4A3728; padding: 5px 15px; border-radius: 4px; cursor: pointer;">←
+            Quay lại</button>
+    </header>
+
+    <div class="container">
+        <div class="card avatar-section">
+            <div class="avatar-preview-container">
+                <img id="profileAvatar" src="https://ui-avatars.com/api/?name=User&background=random" alt="Avatar">
+            </div>
+            <div class="upload-btn-wrapper">
+                <button class="btn-upload">Chọn ảnh từ máy</button>
+                <input type="file" id="avatarInput" accept="image/*" />
+            </div>
+            <p style="font-size: 12px; color: #666; margin-top: 5px;">Hỗ trợ ảnh định dạng JPG, PNG</p>
+
+            <button class="btn-logout" id="btnLogout">Đăng xuất tài khoản</button>
+        </div>
+
+        <div class="card">
+            <h2 style="margin-top: 0;">Quản lý tài khoản</h2>
+            <form id="profileForm" onsubmit="saveProfile(event)">
+                <div class="form-group">
+                    <label>Tên hiển thị / Biệt danh</label>
+                    <input type="text" id="inputUsername" required>
+                </div>
+                <div class="form-group">
+                    <label>Mật khẩu mới (Để trống nếu không muốn đổi)</label>
+                    <input type="password" id="inputPassword" placeholder="******">
+                </div>
+                <button type="submit" class="btn-submit">Cập nhật thông tin</button>
+            </form>
+
+            <div class="list-section-title">❤️ Danh sách truyện yêu thích</div>
+            <div class="book-grid" id="favoriteBooksList">
+                <div class="book-item" onclick="location.href='book.html?id=2'">
+                    <img src="https://m.media-amazon.com/images/I/81A7N8MvvXL._AC_UF1000,1000_QL80_.jpg"
+                        alt="The Shining">
+                    <p>The Shining</p>
+                </div>
+            </div>
+
+            <div class="list-section-title">🕒 Lịch sử truyện đã đọc</div>
+            <div class="book-grid" id="historyBooksList">
+                <div class="book-item" onclick="location.href='read-chapter.html?bookId=1&chapter=1'">
+                    <img src="https://m.media-amazon.com/images/I/71w6K59qSML._AC_SL1500_.jpg" alt="Doraemon">
+                    <p>Doraemon (Chương 1)</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Khai báo biến toàn cục để lưu trữ trạng thái người dùng hiện tại
+        let currentUser = {};
+
+        document.addEventListener("DOMContentLoaded", () => {
+            // Lấy chính xác object từ localStorage
+            const storedUser = localStorage.getItem("currentUser");
+
+            if (storedUser) {
+                currentUser = JSON.parse(storedUser);
+
+                // Đồng bộ hiển thị thông tin lên form: Ưu tiên fullName, nếu không có lấy username
+                document.getElementById("inputUsername").value = currentUser.fullName || currentUser.username || "Thiên Ân";
+
+                if (currentUser.avatar) {
+                    document.getElementById("profileAvatar").src = currentUser.avatar;
+                } else {
+                    // Nếu chưa có avatar, tự tạo avatar chữ dựa trên tên hợp lệ
+                    const nameForAvatar = currentUser.fullName || currentUser.username || "User";
+                    document.getElementById("profileAvatar").src = `https://ui-avatars.com/api/?name=${encodeURIComponent(nameForAvatar)}&background=random`;
+                }
+            } else {
+                // Nếu chưa đăng nhập, đá về trang login
+                alert("Vui lòng đăng nhập để xem hồ sơ!");
+                location.href = "login.html";
+                return;
+            }
+
+            // Xử lý sự kiện upload avatar từ thiết bị
+            const avatarInput = document.getElementById("avatarInput");
+            avatarInput.addEventListener("change", function () {
+                const file = this.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        document.getElementById("profileAvatar").src = e.target.result;
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            // Xử lý nút Đăng xuất
+            document.getElementById("btnLogout").addEventListener("click", () => {
+                localStorage.removeItem("currentUser");
+                alert("Đăng xuất thành công!");
+                location.href = "index.html";
+            });
+
+            loadUserLists();
+        });
+
+        // 🌟 HÀM XỬ LÝ LƯU THÔNG TIN KHÔNG LÀM MẤT DỮ LIỆU CŨ
+        function saveProfile(event) {
+            event.preventDefault();
+            const newName = document.getElementById("inputUsername").value;
+            const newPassword = document.getElementById("inputPassword").value;
+            const avatarSrc = document.getElementById("profileAvatar").src;
+
+            // Sử dụng spread operator `...currentUser` để giữ nguyên toàn bộ fields cũ (role, password, id, username...)
+            const updatedUserData = {
+                ...currentUser,
+                fullName: newName,  // Cập nhật tên hiển thị chính xác đồng bộ với index.html
+                avatar: avatarSrc
+            };
+
+            // Nếu người dùng nhập mật khẩu mới thì mới ghi đè password
+            if (newPassword.trim() !== "") {
+                updatedUserData.password = newPassword;
+            }
+
+            // Lưu đè object đã cập nhật toàn vẹn vào LocalStorage
+            localStorage.setItem("currentUser", JSON.stringify(updatedUserData));
+            alert("Cập nhật thông tin tài khoản thành công!");
+
+            // Tải lại trang để cập nhật giao diện mới nhất
+            window.location.reload();
+        }
+
+        function loadUserLists() {
+            // Không gian phát triển kết nối API sau này
+        }
+    </script>
+</body>
+
+</html>

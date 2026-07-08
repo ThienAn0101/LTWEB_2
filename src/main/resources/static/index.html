@@ -84,7 +84,6 @@
             color: #FDFBF7;
         }
 
-        /* CSS CHO CÁC NÚT TÀI KHOẢN TRÊN HEADER */
         .auth-btn {
             color: #FDFBF7;
             text-decoration: none;
@@ -123,6 +122,13 @@
             color: #2D1F18;
             font-size: 14px;
             font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .user-welcome-txt:hover {
+            text-decoration: underline;
+            color: #8A6B4A;
         }
 
         .section-title {
@@ -204,7 +210,6 @@
             font-weight: 600;
         }
 
-        /* --- CSS CHO BANNER SLIDER --- */
         .banner-slider-container {
             max-width: 1200px;
             margin: 0 auto 35px auto;
@@ -290,6 +295,33 @@
             width: 25px;
             border-radius: 5px;
         }
+
+        .category-container {
+            max-width: 1200px;
+            margin: 25px auto 35px auto;
+            padding: 0 15px;
+        }
+
+        .category-btn {
+            background-color: #D6BE98;
+            color: #2D1F18;
+            border: 1px solid #C08B5C;
+            padding: 8px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            font-family: 'Merriweather', serif;
+            transition: all 0.3s ease;
+        }
+
+        .category-btn:hover,
+        .category-btn.active {
+            background-color: #8A6B4A;
+            color: #FDFBF7;
+            border-color: #8A6B4A;
+            box-shadow: 0 4px 8px rgba(45, 31, 24, 0.15);
+        }
     </style>
 </head>
 
@@ -305,7 +337,7 @@
             <input type="text" id="searchInput" placeholder="Tìm kiếm tựa truyện nhẹ nhàng...">
         </div>
 
-        <div id="authHeaderZone" style="display: flex; align-items: center; gap: 8px;">
+        <div id="authHeaderZone" style="display: flex; align-items: center; gap: 15px;">
         </div>
     </header>
 
@@ -322,6 +354,12 @@
             <div class="slider-dots" id="sliderDots"></div>
         </div>
 
+        <div class="category-container">
+            <div id="category-list" style="display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;">
+                <button class="category-btn active" data-id="all">Tất cả</button>
+            </div>
+        </div>
+
         <h2 class="section-title">☕ GÓC THƯ GIÃN</h2>
         <div class="books-grid" id="books-container">
             <p style="color: #8A6B4A; grid-column: 1/-1; text-align: center;">Đang sửa soạn giá sách...</p>
@@ -331,11 +369,13 @@
     <script>
         const BOOK_API = 'http://localhost:8080/api/books';
         const BANNER_API = 'http://localhost:8080/api/banners';
+        const CATEGORY_API = "http://localhost:8080/api/categories";
 
         let currentSlideIndex = 0;
         let totalSlides = 0;
+        let allBooks = [];
 
-        // 1. LOGIC KIỂM TRA TRẠNG THÁI ĐĂNG NHẬP ĐỂ ĐỔI NÚT HEADER
+        // 1. 🌟 ĐÃ CẬP NHẬT: LOGIC HIỂN THỊ AVATAR VÀ LINK CHUYỂN TRANG CÁ NHÂN
         function checkLoginStatus() {
             const authZone = document.getElementById("authHeaderZone");
             const currentUser = JSON.parse(localStorage.getItem("currentUser"));
@@ -346,11 +386,15 @@
                     adminButtonHtml = `<a href="manage-books.html" class="auth-btn"><i class="fa-solid fa-user-shield"></i> Góc Quản Trị</a>`;
                 }
 
+                // Cấu hình link ảnh avatar (nếu không có thì tạo ảnh chữ cái đầu động)
+                const userAvatarUrl = currentUser.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.fullName || currentUser.username)}&background=random`;
+
                 authZone.innerHTML = `
-                    <span class="user-welcome-txt">Chào, ${currentUser.fullName || currentUser.username}</span>
-                    ${adminButtonHtml}
-                    <button onclick="handleLogout()" class="auth-btn logout-btn"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất</button>
-                `;
+                    <div style="display: flex; align-items: center; gap: 10px; cursor: pointer;" onclick="location.href='profile.html'">
+                        <img src="${userAvatarUrl}" alt="Avatar" style="width: 35px; height: 35px; border-radius: 50%; object-fit: cover; border: 2px solid #FDFBF7;">
+                        <span class="user-welcome-txt">Chào, ${currentUser.fullName || currentUser.username}</span>
+                    </div>
+                    ${adminButtonHtml} `;
             } else {
                 authZone.innerHTML = `
                     <a href="login.html" class="auth-btn"><i class="fa-solid fa-key"></i> Đăng nhập</a>
@@ -364,7 +408,7 @@
             window.location.reload();
         }
 
-        // 2. HÀM TẢI BANNER TỪ SPRING BOOT VÀ ĐỔ RA SLIDER
+        // 2. TẢI BANNER VÀ ĐỔ RA SLIDER
         function loadBannersToHome() {
             fetch(BANNER_API)
                 .then(res => res.json())
@@ -406,10 +450,7 @@
                 });
         }
 
-        // Tự động chuyển Slide mỗi 5 giây
-        setInterval(() => {
-            moveSlider(1);
-        }, 5000);
+        setInterval(() => { moveSlider(1); }, 5000);
 
         function moveSlider(direction) {
             if (totalSlides === 0) return;
@@ -438,7 +479,7 @@
             });
         }
 
-        // 3. HÀM TẢI TRUYỆN CŨ CỦA BẠN
+        // 3. TẢI TOÀN BỘ TRUYỆN BAN ĐẦU VÀO BỘ NHỚ ĐỆM
         function loadAllBooksToHome() {
             fetch(BOOK_API)
                 .then(response => {
@@ -446,29 +487,8 @@
                     return response.json();
                 })
                 .then(books => {
-                    const container = document.getElementById('books-container');
-                    container.innerHTML = '';
-                    if (books.length === 0) {
-                        container.innerHTML = `<p style="color: #8A6B4A; grid-column: 1/-1; text-align: center;">Chưa có cuốn sách nào được đặt ở đây.</p>`;
-                        return;
-                    }
-                    books.forEach(book => {
-                        const coverImgUrl = book.coverUrl ? `http://localhost:8080${book.coverUrl}` : 'https://via.placeholder.com/180x240/C7AD84/FDFBF7?text=3T+Story';
-                        const categoryName = book.category ? book.category.name : 'Truyện Chữ';
-
-                        const bookLink = document.createElement('a');
-                        bookLink.className = 'book-card';
-                        bookLink.href = `detail-book.html?id=${book.id}`;
-                        bookLink.innerHTML = `
-                            <img src="${coverImgUrl}" alt="${book.title}" class="book-card-cover" onerror="this.src='https://via.placeholder.com/180x240/C7AD84/FDFBF7?text=3T+Story'">
-                            <div class="book-card-info">
-                                <h3 class="book-card-title">${book.title}</h3>
-                                <p class="book-card-author"><i class="fa-regular fa-user"></i> ${book.author || 'Khuyết Danh'}</p>
-                                <span class="book-card-category">${categoryName}</span>
-                            </div>
-                        `;
-                        container.appendChild(bookLink);
-                    });
+                    allBooks = books;
+                    renderBooks(allBooks);
                 })
                 .catch(error => {
                     console.error("Lỗi khi tải truyện:", error);
@@ -476,11 +496,79 @@
                 });
         }
 
-        // KÍCH HOẠT CHẠY ĐỒNG THỜI HEADER, BANNER VÀ TRUYỆN KHI VÀO TRANG CHỦ
+        // 4. HÀM DỰNG GIAO DIỆN HIỂN THỊ SÁCH
+        function renderBooks(booksList) {
+            const container = document.getElementById('books-container');
+            container.innerHTML = '';
+
+            if (!booksList || booksList.length === 0) {
+                container.innerHTML = `<p style="color: #8A6B4A; grid-column: 1/-1; text-align: center;">Chưa có cuốn sách nào thuộc thể loại này.</p>`;
+                return;
+            }
+
+            booksList.forEach(book => {
+                const coverImgUrl = book.coverUrl ? `http://localhost:8080${book.coverUrl}` : 'https://via.placeholder.com/180x240/C7AD84/FDFBF7?text=3T+Story';
+                const categoryName = book.category ? book.category.name : 'Truyện Chữ';
+
+                const bookLink = document.createElement('a');
+                bookLink.className = 'book-card';
+                bookLink.href = `detail-book.html?id=${book.id}`;
+                bookLink.innerHTML = `
+                    <img src="${coverImgUrl}" alt="${book.title}" class="book-card-cover" onerror="this.src='https://via.placeholder.com/180x240/C7AD84/FDFBF7?text=3T+Story'">
+                    <div class="book-card-info">
+                        <h3 class="book-card-title">${book.title}</h3>
+                        <p class="book-card-author"><i class="fa-regular fa-user"></i> ${book.author || 'Khuyết Danh'}</p>
+                        <span class="book-card-category">${categoryName}</span>
+                    </div>
+                `;
+                container.appendChild(bookLink);
+            });
+        }
+
+        // 5. TẢI DANH MỤC VÀ ĐĂNG KÝ SỰ KIỆN CLICK LỌC TRUYỆN
+        function loadCategoriesAndSetupFilter() {
+            fetch(CATEGORY_API)
+                .then(res => res.json())
+                .then(categories => {
+                    const categoryList = document.getElementById("category-list");
+
+                    categories.forEach(cat => {
+                        const btn = document.createElement("button");
+                        btn.className = "category-btn";
+                        btn.textContent = cat.name;
+                        btn.setAttribute("data-id", cat.id);
+                        categoryList.appendChild(btn);
+                    });
+
+                    setupCategoryButtons();
+                })
+                .catch(err => console.error("Lỗi khi tải danh mục:", err));
+        }
+
+        function setupCategoryButtons() {
+            const buttons = document.querySelectorAll(".category-btn");
+            buttons.forEach(button => {
+                button.addEventListener("click", function () {
+                    document.querySelector(".category-btn.active").classList.remove("active");
+                    this.classList.add("active");
+
+                    const categoryId = this.getAttribute("data-id");
+
+                    if (categoryId === "all") {
+                        renderBooks(allBooks);
+                    } else {
+                        const filtered = allBooks.filter(book => book.category && book.category.id == categoryId);
+                        renderBooks(filtered);
+                    }
+                });
+            });
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             checkLoginStatus();
             loadBannersToHome();
             loadAllBooksToHome();
+            loadCategoriesAndSetupFilter();
         });
     </script>
 </body>
