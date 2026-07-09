@@ -5,6 +5,10 @@ import com.ltweb2.spiderlily.entity.Category;
 import com.ltweb2.spiderlily.repository.BookRepository;
 import com.ltweb2.spiderlily.repository.CategoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,10 +25,18 @@ public class BookController {
     @Autowired
     private CategoryRepository categoryRepository;
 
-    // 1. API Lấy danh sách tất cả các truyện
+    // 1. API Lấy danh sách tất cả các truyện (Đã tích hợp phân trang)
     @GetMapping
-    public List<Book> getAllBooks() {
-        return bookRepository.findAll();
+    public ResponseEntity<org.springframework.data.domain.Page<Book>> getAllBooks(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size) {
+
+        // Sắp xếp các truyện mới thêm (ID lớn hơn) lên trên đầu trang quản lý
+        org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(page, size,
+                org.springframework.data.domain.Sort.by("id").descending());
+
+        org.springframework.data.domain.Page<Book> bookPage = bookRepository.findAll(pageable);
+        return ResponseEntity.ok(bookPage);
     }
 
     // 2. API Lấy chi tiết 1 cuốn truyện theo ID
@@ -36,7 +48,6 @@ public class BookController {
     }
 
     // 3. API Thêm truyện mới (Đã chuẩn hóa)
-    // Thay thế hàm createBook cũ bằng hàm này:
     @PostMapping(consumes = { "multipart/form-data" })
     public ResponseEntity<?> createBook(
             @RequestPart("book") Book book,
@@ -52,22 +63,17 @@ public class BookController {
         // Xử lý lưu file ảnh vào máy tính nếu người dùng có chọn tệp
         if (file != null && !file.isEmpty()) {
             try {
-                // Tạo tên file duy nhất tránh trùng lặp bằng cấu trúc thời gian hệ thống
                 String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
-
-                // Thư mục lưu trữ ảnh tĩnh trong Spring Boot
                 String uploadDir = "src/main/resources/static/uploads/";
                 java.io.File dir = new java.io.File(uploadDir);
                 if (!dir.exists()) {
-                    dir.mkdirs(); // Tự động tạo thư mục uploads nếu chưa có
+                    dir.mkdirs();
                 }
 
-                // Thực hiện lưu tệp vật lý
                 java.nio.file.Path path = java.nio.file.Paths.get(uploadDir + fileName);
                 java.nio.file.Files.copy(file.getInputStream(), path,
                         java.nio.file.StandardCopyOption.REPLACE_EXISTING);
 
-                // Lưu đường dẫn tương đối vào Database để Front-end gọi hiển thị
                 book.setCoverUrl("/uploads/" + fileName);
 
             } catch (Exception e) {
@@ -79,7 +85,7 @@ public class BookController {
         return ResponseEntity.ok(savedBook);
     }
 
-    // 4. API Sửa thông tin truyện hỗ trợ tải file ảnh (Thay thế hàm cũ)
+    // 4. API Sửa thông tin truyện hỗ trợ tải file ảnh
     @PutMapping(value = "/{id}", consumes = { "multipart/form-data" })
     public ResponseEntity<?> updateBook(
             @PathVariable Long id,
@@ -87,26 +93,21 @@ public class BookController {
             @RequestPart(value = "file", required = false) org.springframework.web.multipart.MultipartFile file,
             @RequestParam Long categoryId) {
 
-        // 1. Kiểm tra truyện tồn tại không
         Book book = bookRepository.findById(id).orElse(null);
         if (book == null) {
             return ResponseEntity.notFound().build();
         }
 
-        // 2. Kiểm tra danh mục hợp lệ không
         Category category = categoryRepository.findById(categoryId).orElse(null);
         if (category == null) {
             return ResponseEntity.badRequest().body("Không tìm thấy Danh mục truyện hợp lệ!");
         }
 
-        // 3. Cập nhật các trường thông tin dạng text
         book.setTitle(bookDetails.getTitle());
         book.setAuthor(bookDetails.getAuthor());
         book.setSummary(bookDetails.getSummary());
         book.setCategory(category);
 
-        // 4. Nếu người dùng chọn file ảnh mới thì mới ghi đè, nếu bỏ trống thì giữ ảnh
-        // cũ
         if (file != null && !file.isEmpty()) {
             try {
                 String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
@@ -120,7 +121,7 @@ public class BookController {
                 java.nio.file.Files.copy(file.getInputStream(), path,
                         java.nio.file.StandardCopyOption.REPLACE_EXISTING);
 
-                book.setCoverUrl("/uploads/" + fileName); // Cập nhật đường dẫn ảnh mới
+                book.setCoverUrl("/uploads/" + fileName);
             } catch (Exception e) {
                 return ResponseEntity.internalServerError().body("Lỗi lưu file ảnh khi sửa: " + e.getMessage());
             }

@@ -322,6 +322,89 @@
             border-color: #8A6B4A;
             box-shadow: 0 4px 8px rgba(45, 31, 24, 0.15);
         }
+
+        /* --- CSS CHO FOOTER CHÂN TRANG --- */
+        .client-footer {
+            background-color: #2D1F18;
+            color: #EADBC8;
+            margin-top: 50px;
+            border-top: 4px solid #8A6B4A;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 40px;
+            box-sizing: border-box;
+        }
+
+        .footer-section h4 {
+            font-family: 'Playfair Display', serif;
+            color: #FDFBF7;
+            font-size: 18px;
+            margin-top: 0;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #8A6B4A;
+            padding-bottom: 8px;
+        }
+
+        .footer-section p {
+            font-size: 14px;
+            line-height: 1.6;
+            margin: 0 0 15px 0;
+        }
+
+        .footer-links {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .footer-links li {
+            margin-bottom: 10px;
+        }
+
+        .footer-links a {
+            color: #EADBC8;
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover {
+            color: #FDFBF7;
+            text-decoration: underline;
+        }
+
+        .footer-socials a {
+            color: #FDFBF7;
+            font-size: 20px;
+            margin-right: 15px;
+            transition: color 0.2s;
+        }
+
+        .footer-socials a:hover {
+            color: #C08B5C;
+        }
+
+        .footer-bottom {
+            background-color: #201510;
+            text-align: center;
+            padding: 15px 20px;
+            font-size: 13px;
+            color: #8A6B4A;
+            border-top: 1px solid rgba(138, 107, 74, 0.2);
+        }
+
+        @media (max-width: 768px) {
+            .slider-wrapper { height: 220px; }
+            .slide-title { font-size: 18px; }
+            .slide-desc { display: none; }
+            .footer-content { grid-template-columns: 1fr; gap: 25px; }
+        }
     </style>
 </head>
 
@@ -365,6 +448,45 @@
             <p style="color: #8A6B4A; grid-column: 1/-1; text-align: center;">Đang sửa soạn giá sách...</p>
         </div>
     </main>
+
+    <footer class="client-footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4><i class="fa-solid fa-book-bookmark"></i> 3T Story</h4>
+                <p>Đọc truyện online miễn phí, cập nhật liên tục các chương mới nhất thuộc các thể loại tiên hiệp, huyền
+                    huyễn, ngôn tình, đô thị một cách nhanh chóng.</p>
+                <div class="footer-socials">
+                    <a href="#"><i class="fa-brands fa-facebook"></i></a>
+                    <a href="#"><i class="fa-brands fa-tiktok"></i></a>
+                    <a href="#"><i class="fa-brands fa-youtube"></i></a>
+                </div>
+            </div>
+    
+            <div class="footer-section">
+                <h4><i class="fa-solid fa-bars"></i> Khám Phá</h4>
+                <ul class="footer-links">
+                    <li><a href="#">Truyện Mới Cập Nhật</a></li>
+                    <li><a href="#">Truyện Xem Nhiều Nhất</a></li>
+                    <li><a href="#">Truyện Đã Hoàn Thành</a></li>
+                    <li><a href="#">Bảng Xếp Hạng</a></li>
+                </ul>
+            </div>
+    
+            <div class="footer-section">
+                <h4><i class="fa-solid fa-shield-halved"></i> Quy Định</h4>
+                <ul class="footer-links">
+                    <li><a href="#">Điều Khoản Sử Dụng</a></li>
+                    <li><a href="#">Chính Sách Bảo Mật</a></li>
+                    <li><a href="#">Khiếu Nại Bản Quyền</a></li>
+                    <li><a href="#">Liên Hệ Admin</a></li>
+                </ul>
+            </div>
+        </div>
+    
+        <div class="footer-bottom">
+            <p>Copyright © 2026 3T Story. All Rights Reserved. Mọi thông tin khiếu nại vui lòng liên hệ email hỗ trợ.</p>
+        </div>
+    </footer>
 
     <script>
         const BOOK_API = 'http://localhost:8080/api/books';

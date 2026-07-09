@@ -55,7 +55,6 @@
             padding: 25px 20px;
             display: grid;
             grid-template-columns: 280px 1fr;
-            /* Cột trái 280px, cột phải chiếm hết chỗ còn lại */
             gap: 25px;
         }
 
@@ -89,7 +88,6 @@
             padding: 0;
             margin: 0;
             overflow-y: auto;
-            /* Cuộn danh sách nếu quá nhiều chương */
             flex-grow: 1;
         }
 
@@ -165,6 +163,28 @@
             display: inline-block;
         }
 
+        /* Nút trở về trang chi tiết đặt bên trái thanh công cụ */
+        .back-detail-btn {
+            background-color: #8A6B4A;
+            color: #FDFBF7;
+            border: 1px solid #8A6B4A;
+            padding: 6px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 13px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .back-detail-btn:hover {
+            background-color: #FDFBF7;
+            color: #8A6B4A;
+        }
+
         /* --- KHUNG CHỨA SÁCH --- */
         .reader-outer-wrap {
             width: 100%;
@@ -176,7 +196,6 @@
             padding: 30px 40px 40px 40px;
         }
 
-        /* Tiêu đề chương trên đầu khối nội dung */
         .content-header-title {
             font-family: 'Playfair Display', serif;
             font-size: 24px;
@@ -248,7 +267,6 @@
             color: #FDFBF7;
         }
 
-        /* Nút đổi Chương nhanh màu đậm hơn để phân biệt với lật Trang */
         .btn-chapter-nav {
             background-color: #C08B5C;
             color: #FDFBF7;
@@ -258,6 +276,8 @@
         .btn-nav:disabled {
             opacity: 0.4;
             cursor: not-allowed;
+            background-color: #e0d4be !important;
+            color: #777 !important;
         }
 
         #pageInfo {
@@ -275,13 +295,14 @@
         <div class="logo-container">
             <span class="logo-text" onclick="location.href='index.html'">3T <span class="highlight">Story</span></span>
         </div>
-    
+
         <div class="header-right-side" style="display: flex; align-items: center; gap: 15px;">
             <div style="color: #FDFBF7; font-weight: bold;" id="headerBookTitle">Đang tải truyện...</div>
-    
+
             <div class="user-avatar-container" id="userArea" style="display: flex; align-items: center;">
-                <img id="userAvatar" src="assets/images/default-avatar.png" alt="Avatar"
-                    style="width: 35px; height: 35px; border-radius: 50%; object-fit: cover; border: 2px solid #FDFBF7; cursor: pointer;">
+                <img id="userAvatar" src="https://ui-avatars.com/api/?name=User&background=random" alt="Avatar"
+                    style="width: 35px; height: 35px; border-radius: 50%; object-fit: cover; border: 2px solid #FDFBF7; cursor: pointer;"
+                    onclick="location.href='profile.html'">
             </div>
         </div>
     </header>
@@ -296,14 +317,15 @@
 
         <main class="reader-body">
             <div class="toolbar">
+                <a id="backToDetailLink" href="index.html" class="back-detail-btn">
+                    <i class="fa-solid fa-arrow-left"></i> Trở về
+                </a>
+
                 <div class="font-controls">
                     <i class="fa-solid fa-font"></i> Kích thước chữ:
                     <button id="btnDecreaseFont" class="btn-tool"><i class="fa-solid fa-minus"></i></button>
                     <span id="currentFontSize" class="font-size-val">18px</span>
                     <button id="btnIncreaseFont" class="btn-tool"><i class="fa-solid fa-plus"></i></button>
-                </div>
-                <div style="font-size: 13px; color: #8A6B4A; font-style: italic;">
-                    <i class="fa-solid fa-circle-info"></i> Dùng nút bấm hoặc phím mũi tên ← → để lật trang
                 </div>
             </div>
 
@@ -342,12 +364,13 @@
     <script>
         const urlParams = new URLSearchParams(window.location.search);
         const bookId = urlParams.get('bookId') || '1';
-        let currentChapterNum = parseInt(urlParams.get('chapter')) || 1; // Lưu dạng số để làm phép cộng trừ
+        let currentChapterNum = parseInt(urlParams.get('chapter')) || 1;
 
         let currentPage = 0;
         let currentSize = 18;
         const minSize = 14;
         const maxSize = 30;
+        let totalChaptersCount = 0;
 
         const storyContent = document.getElementById('storyContent');
         const headerBookTitle = document.getElementById('headerBookTitle');
@@ -360,20 +383,19 @@
 
         const btnPrevChapter = document.getElementById('btnPrevChapter');
         const btnNextChapter = document.getElementById('btnNextChapter');
-        const lblPrevChapter = document.getElementById('lblPrevChapter');
-        const lblNextChapter = document.getElementById('lblNextChapter');
         const sidebarChapterList = document.getElementById('sidebarChapterList');
 
-        // --- HÀM 1 & 2: GỌI ĐỒNG THỜI ĐỂ TẢI DỮ LIỆU ---
+        // Cập nhật link quay lại trang chi tiết truyện một cách chính xác
+        document.getElementById('backToDetailLink').href = `detail-book.html?id=${bookId}`;
+
         async function loadData() {
-            currentPage = 0; // Reset trang về 0 khi chuyển chương
+            currentPage = 0;
             await Promise.all([
-                fetchChapterContent(), // Lấy chi tiết nội dung chương đang đọc
-                fetchSidebarChapters() // Lấy toàn bộ danh sách chương đổ vào mục lục bên trái
+                fetchChapterContent(),
+                fetchSidebarChapters()
             ]);
         }
 
-        // Lấy nội dung chi tiết chương
         async function fetchChapterContent() {
             try {
                 contentChapterTitle.innerText = "Đang tải dữ liệu...";
@@ -382,7 +404,8 @@
                 const response = await fetch(`http://localhost:8080/api/books/${bookId}/chapters/${currentChapterNum}`);
 
                 if (response.status === 404) {
-                    headerBookTitle.innerText = "Thông báo";
+                    // FIX: Khi lỗi 404, giữ nguyên chữ "3T Story" thay vì hiện chữ "Thông báo"
+                    headerBookTitle.innerText = "3T Story";
                     contentChapterTitle.innerText = "Chưa cập nhật nội dung";
                     storyContent.innerHTML = `
                         <div style="text-align: center; padding: 40px 20px; color: #8A6B4A;">
@@ -394,7 +417,7 @@
                     pageInfo.innerText = "Trang 1 / 1";
                     btnPrevPage.disabled = true;
                     btnNextPage.disabled = true;
-                    updateChapterNavButtons(); // Vẫn cập nhật trạng thái nút chương để quay lại
+                    updateChapterNavButtons();
                     return;
                 }
 
@@ -402,12 +425,10 @@
 
                 const chapterData = await response.json();
 
-                // Đổ dữ liệu lên màn hình
                 headerBookTitle.innerText = chapterData.bookTitle || "3T Story";
                 contentChapterTitle.innerText = chapterData.title || `Chương ${currentChapterNum}`;
                 storyContent.innerHTML = chapterData.content;
 
-                // Đồng bộ cỡ chữ
                 const savedSize = localStorage.getItem('readerFontSize');
                 if (savedSize) {
                     currentSize = parseInt(savedSize);
@@ -425,109 +446,80 @@
             }
         }
 
-        // Tạo một biến toàn cục để lưu tổng số chương của cuốn truyện
-            let totalChaptersCount = 0;
+        async function fetchSidebarChapters() {
+            try {
+                const response = await fetch(`http://localhost:8080/api/books/${bookId}/chapters`);
+                if (!response.ok) return;
 
-            // 1. CẬP NHẬT HÀM LẤY DANH SÁCH CHƯƠNG ĐỂ LƯU TỔNG SỐ CHƯƠNG
-            async function fetchSidebarChapters() {
-                try {
-                    const response = await fetch(`http://localhost:8080/api/books/${bookId}/chapters`);
-                    if (!response.ok) return;
+                const chapters = await response.json();
+                sidebarChapterList.innerHTML = "";
 
-                    const chapters = await response.json();
-                    sidebarChapterList.innerHTML = ""; // Xóa danh sách cũ
+                totalChaptersCount = chapters.length;
 
-                    // 🌟 LƯU TỔNG SỐ CHƯƠNG THỰC TẾ VÀO BIẾN
-                    totalChaptersCount = chapters.length;
-
-                    if (chapters.length === 0) {
-                        sidebarChapterList.innerHTML = `<li style="font-style:italic; color:#999; font-size:13px; text-align:center;">Chưa có danh sách chương</li>`;
-                        return;
-                    }
-
-                    // Lặp qua từng chương và chèn vào mục lục
-                    chapters.forEach(ch => {
-                        const li = document.createElement('li');
-                        li.className = `chapter-item ${ch.chapterNumber === currentChapterNum ? 'active' : ''}`;
-                        li.innerText = ch.title || `Chương ${ch.chapterNumber}`;
-                        li.title = ch.title;
-                        li.onclick = () => {
-                            if (ch.chapterNumber !== currentChapterNum) {
-                                changeChapter(ch.chapterNumber);
-                            }
-                        };
-                        sidebarChapterList.appendChild(li);
-                    });
-
-                    // 🌟 Gọi lại hàm cập nhật nút sau khi đã biết chính xác tổng số chương
-                    updateChapterNavButtons();
-
-                } catch (err) {
-                    console.error("Không thể lấy danh sách mục lục:", err);
+                if (chapters.length === 0) {
+                    sidebarChapterList.innerHTML = `<li style="font-style:italic; color:#999; font-size:13px; text-align:center;">Chưa có danh sách chương</li>`;
+                    return;
                 }
-            }
 
-        // --- HÀM XỬ LÝ ĐỔI CHƯƠNG NHANH ---
+                chapters.forEach(ch => {
+                    const li = document.createElement('li');
+                    li.className = `chapter-item ${ch.chapterNumber === currentChapterNum ? 'active' : ''}`;
+                    li.innerText = ch.title || `Chương ${ch.chapterNumber}`;
+                    li.title = ch.title;
+                    li.onclick = () => {
+                        if (ch.chapterNumber !== currentChapterNum) {
+                            changeChapter(ch.chapterNumber);
+                        }
+                    };
+                    sidebarChapterList.appendChild(li);
+                });
+
+                updateChapterNavButtons();
+
+            } catch (err) {
+                console.error("Không thể lấy danh sách mục lục:", err);
+            }
+        }
+
         function changeChapter(newChapterNum) {
             currentChapterNum = newChapterNum;
-            // Đẩy số chương mới lên thanh URL mà không làm load lại trang (giúp app chạy mượt hơn)
             const newUrl = `${window.location.pathname}?bookId=${bookId}&chapter=${currentChapterNum}`;
             window.history.pushState({ path: newUrl }, '', newUrl);
-
-            // Tiến hành tải lại dữ liệu chương mới
             loadData();
         }
 
-        // 2. CẬP NHẬT LOGIC ĐIỀU KIỆN CHO NÚT CHUYỂN CHƯƠNG
-            function updateChapterNavButtons() {
-                // --- XỬ LÝ NÚT CHƯƠNG TRƯỚC (GIỮ NGUYÊN) ---
-                if (currentChapterNum > 1) {
-                    btnPrevChapter.disabled = false;
-                    lblPrevChapter.innerText = `Chương ${currentChapterNum - 1}`;
-                } else {
-                    btnPrevChapter.disabled = true;
-                    lblPrevChapter.innerText = `Hết chương trước`;
-                }
-
-                // --- 🌟 XỬ LÝ NÚT CHƯƠNG SAU THEO YÊU CẦU ---
-                // Trường hợp 1: Số chương hiện tại lớn hơn hoặc bằng tổng số chương trong database
-                if (totalChaptersCount > 0 && currentChapterNum >= totalChaptersCount) {
-                    btnNextChapter.disabled = true; // Khóa không cho bấm nữa
-                    lblNextChapter.innerText = `Kết thúc`; // Hiển thị chữ Kết thúc
-                }
-                // Trường hợp 2: Vẫn còn chương tiếp theo để đọc
-                else {
-                    btnNextChapter.disabled = false; // Mở khóa nút
-                    lblNextChapter.innerText = `Chương ${currentChapterNum + 1}`; // Hiện số chương tiếp theo
-                }
+        function updateChapterNavButtons() {
+            if (currentChapterNum <= 1) {
+                btnPrevChapter.disabled = true;
+            } else {
+                btnPrevChapter.disabled = false;
             }
 
-        // --- HÀM TÍNH TOÁN LẬT TRANG CHỮ (GIỮ NGUYÊN HOẠT ĐỘNG CHUẨN XÁC) ---
+            if (totalChaptersCount > 0 && currentChapterNum >= totalChaptersCount) {
+                btnNextChapter.disabled = true;
+            } else {
+                btnNextChapter.disabled = false;
+            }
+        }
+
         function updatePagination() {
-                if (!storyContent || storyContent.scrollWidth === 0) return;
+            if (!storyContent || storyContent.scrollWidth === 0) return;
 
-                const pageWidth = storyContent.clientWidth;
-                const gap = 40;
-                const stepShift = pageWidth + gap;
+            const pageWidth = storyContent.clientWidth;
+            const gap = 40;
+            const stepShift = pageWidth + gap;
 
-                // 🌟 SỬA TẠI ĐÂY: Trừ bớt một khoảng sai số nhỏ (Ví dụ: 10px-20px) 
-                // để tránh việc trình duyệt tính nhầm các khoảng trống margin/padding thành một trang mới.
-                const tolerance = 20;
-                const totalPages = Math.ceil((storyContent.scrollWidth - tolerance + gap) / stepShift);
+            const tolerance = 20;
+            const totalPages = Math.ceil((storyContent.scrollWidth - tolerance + gap) / stepShift);
 
-                // Đảm bảo trang hiện tại không vượt quá tổng số trang mới tính toán
-                if (currentPage >= totalPages) currentPage = Math.max(0, totalPages - 1);
+            if (currentPage >= totalPages) currentPage = Math.max(0, totalPages - 1);
 
-                // Cập nhật trạng thái khóa/mở nút Trang trước & Trang sau
-                btnPrevPage.disabled = currentPage === 0;
-                btnNextPage.disabled = currentPage >= totalPages - 1 || totalPages <= 1;
+            btnPrevPage.disabled = currentPage === 0;
+            btnNextPage.disabled = currentPage >= totalPages - 1 || totalPages <= 1;
 
-                // Hiển thị thông tin số trang thực tế lên giao diện
-                pageInfo.innerText = `Trang ${currentPage + 1} / ${totalPages || 1}`;
-
-                // Di chuyển thanh cuộn ngang dịch chữ theo trang
-                storyContent.style.transform = `translateX(-${currentPage * stepShift}px)`;
-            }
+            pageInfo.innerText = `Trang ${currentPage + 1} / ${totalPages || 1}`;
+            storyContent.style.transform = `translateX(-${currentPage * stepShift}px)`;
+        }
 
         btnNextPage.addEventListener('click', () => {
             currentPage++;
@@ -540,27 +532,22 @@
         });
 
         document.addEventListener("DOMContentLoaded", function () {
-                // 1. Lấy thông tin user đã lưu trong localStorage (tùy thuộc vào cách bạn lưu ở trang đăng nhập)
-                // Ví dụ: localStorage.setItem("currentUser", JSON.stringify({ name: "Thiên Ân", avatar: "url_anh..." }))
-                const currentUser = JSON.getObj = JSON.parse(localStorage.getItem("currentUser")) || null;
+            const currentUser = JSON.parse(localStorage.getItem("currentUser")) || null;
+            const userAvatar = document.getElementById("userAvatar");
+            const userArea = document.getElementById("userArea");
 
-                const userAvatar = document.getElementById("userAvatar");
-                const userArea = document.getElementById("userArea");
-
-                if (currentUser) {
-                    // Nếu tìm thấy người dùng đã đăng nhập
-                    if (currentUser.avatar) {
-                        userAvatar.src = currentUser.avatar; // Đổ link ảnh avatar của user vào
-                    } else {
-                        // Nếu không có avatar riêng, dùng ảnh mặc định hoặc tạo hình tròn chữ cái đầu như ảnh trang chủ
-                        userAvatar.src = "https://ui-avatars.com/api/?name=" + encodeURIComponent(currentUser.name || "User") + "&background=random";
-                    }
-                    userAvatar.title = `Chào, ${currentUser.name || 'Người dùng'}`;
+            if (currentUser) {
+                const nameForAvatar = currentUser.fullName || currentUser.username || "User";
+                if (currentUser.avatar) {
+                    userAvatar.src = currentUser.avatar;
                 } else {
-                    // Nếu chưa đăng nhập, bạn có thể ẩn avatar đi hoặc đổi thành nút "Đăng nhập"
-                    userArea.innerHTML = `<button onclick="location.href='login.html'" style="background: #a3704c; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Đăng nhập</button>`;
+                    userAvatar.src = "https://ui-avatars.com/api/?name=" + encodeURIComponent(nameForAvatar) + "&background=random";
                 }
-            });
+                userAvatar.title = `Chào, ${nameForAvatar}`;
+            } else {
+                userArea.innerHTML = `<button onclick="location.href='login.html'" style="background: #a3704c; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Đăng nhập</button>`;
+            }
+        });
 
         function changeFontSize(amount) {
             currentSize += amount;

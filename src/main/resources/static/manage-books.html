@@ -16,7 +16,7 @@
             margin-top: 25px;
             padding: 10px;
         }
-    
+
         .pagination-btn {
             background-color: #3D2B22;
             color: #F8F3E9;
@@ -30,18 +30,18 @@
             align-items: center;
             gap: 8px;
         }
-    
+
         .pagination-btn:hover:not(:disabled) {
             background-color: #C08B5C;
             color: #2D1F18;
         }
-    
+
         .pagination-btn:disabled {
             opacity: 0.3;
             cursor: not-allowed;
             border-color: #555;
         }
-    
+
         .page-info {
             color: #BEB29A;
             font-size: 14px;
@@ -107,6 +107,17 @@
                         <tbody id="book-table-body">
                         </tbody>
                     </table>
+
+                    <div class="pagination-container">
+                        <button id="btnPrev" class="pagination-btn">
+                            <i class="fa-solid fa-chevron-left"></i> Trang trước
+                        </button>
+                        <span id="pageInfo" class="page-info">Trang 1 / 1</span>
+                        <button id="btnNext" class="pagination-btn">
+                            Trang sau <i class="fa-solid fa-chevron-right"></i>
+                        </button>
+                    </div>
+
                 </div>
             </section>
         </main>
@@ -115,15 +126,31 @@
     <script>
         const BOOK_API = 'http://localhost:8080/api/books';
 
-        function loadBooks() {
-            fetch(BOOK_API)
+        // Quản lý trạng thái trang hiện tại
+        let currentPage = 0;
+        const pageSize = 5;
+
+        const btnPrev = document.getElementById('btnPrev');
+        const btnNext = document.getElementById('btnNext');
+        const pageInfo = document.getElementById('pageInfo');
+
+        function loadBooks(page) {
+            // Truyền tham số page và size lên REST API
+            fetch(`${BOOK_API}?page=${page}&size=${pageSize}`)
                 .then(res => res.json())
-                .then(books => {
+                .then(pageData => {
                     const tbody = document.getElementById('book-table-body');
                     tbody.innerHTML = '';
 
+                    // Spring Boot Page trả mảng dữ liệu nằm trong trường 'content'
+                    const books = pageData.content || [];
+                    const totalPages = pageData.totalPages || 1;
+
                     if (books.length === 0) {
-                        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding: 30px; color:#C08B5C;">Chưa có cuốn truyện nào trong database. Hãy thêm mới!</td></tr>`;
+                        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding: 30px; color:#C08B5C;">Chưa có cuốn truyện nào ở trang này.</td></tr>`;
+                        pageInfo.innerText = `Trang ${page + 1} / ${totalPages}`;
+                        btnPrev.disabled = true;
+                        btnNext.disabled = true;
                         return;
                     }
 
@@ -147,17 +174,48 @@
                         `;
                         tbody.appendChild(tr);
                     });
+
+                    // Cập nhật text hiển thị số trang hiện tại
+                    pageInfo.innerText = `Trang ${page + 1} / ${totalPages}`;
+
+                    // Cấu hình trạng thái vô hiệu hóa (disabled) nút bấm
+                    btnPrev.disabled = (page === 0);
+                    btnNext.disabled = (page >= totalPages - 1);
                 })
-                .catch(err => console.error(err));
+                .catch(err => {
+                    console.error(err);
+                    document.getElementById('book-table-body').innerHTML = `<tr><td colspan="6" style="text-align:center; padding: 30px; color:red;">⚠️ Lỗi kết nối đến Server!</td></tr>`;
+                });
         }
+
+        // Sự kiện khi nhấn nút Trang trước
+        btnPrev.addEventListener('click', () => {
+            if (currentPage > 0) {
+                currentPage--;
+                loadBooks(currentPage);
+            }
+        });
+
+        // Sự kiện khi nhấn nút Trang sau
+        btnNext.addEventListener('click', () => {
+            currentPage++;
+            loadBooks(currentPage);
+        });
 
         function deleteBook(id, title) {
             if (confirm(`Bạn có chắc muốn xóa bộ truyện "${title}" không?`)) {
                 fetch(`${BOOK_API}/${id}`, { method: 'DELETE' })
-                    .then(res => { if (res.ok) loadBooks(); });
+                    .then(res => {
+                        if (res.ok) {
+                            // Tải lại dữ liệu của chính trang hiện tại sau khi xóa thành công
+                            loadBooks(currentPage);
+                        }
+                    });
             }
         }
-        loadBooks();
+
+        // Khởi chạy load dữ liệu trang đầu tiên khi mở ứng dụng
+        loadBooks(currentPage);
     </script>
 </body>
 

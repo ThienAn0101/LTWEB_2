@@ -290,7 +290,15 @@
         <div class="logo-container">
             <span class="logo-text" onclick="location.href='index.html'">3T <span class="highlight">Story</span></span>
         </div>
-        <a href="index.html" class="back-home-btn"><i class="fa-solid fa-arrow-left-long"></i> Trở về</a>
+        <!-- <a href="index.html" class="back-home-btn"><i class="fa-solid fa-arrow-left-long"></i> Trở về</a> -->
+        <div class="header-right-side" style="display: flex; align-items: center; gap: 15px;">
+            <!-- Nếu trang đó có hiện tiêu đề truyện thì giữ lại, không thì chỉ cần khối userArea bên dưới -->
+            <div class="user-avatar-container" id="userArea" style="display: flex; align-items: center;">
+                <img id="userAvatar" src="https://ui-avatars.com/api/?name=User&background=random" alt="Avatar"
+                    style="width: 35px; height: 35px; border-radius: 50%; object-fit: cover; border: 2px solid #FDFBF7; cursor: pointer;"
+                    onclick="location.href='profile.html'">
+            </div>
+        </div>
     </header>
 
     <main class="client-body">
@@ -333,6 +341,31 @@
         const bookId = urlParams.get('id');
 
         if (!bookId) location.href = 'index.html';
+
+        // === CHỨC NĂNG ĐỒNG BỘ VÀ ĐỔI AVATAR NGƯỜI DÙNG ===
+        function checkUserSession() {
+            const currentUser = JSON.parse(localStorage.getItem("currentUser")) || null;
+            const userAvatar = document.getElementById("userAvatar");
+            const userArea = document.getElementById("userArea");
+
+            if (userAvatar && userArea) {
+                if (currentUser) {
+                    // Lấy tên hiển thị ưu tiên fullName hoặc username
+                    const nameForAvatar = currentUser.fullName || currentUser.username || "User";
+
+                    // Nếu user có ảnh đại diện riêng thì đổi src, không thì dùng avatar chữ cái mặc định
+                    if (currentUser.avatar) {
+                        userAvatar.src = currentUser.avatar;
+                    } else {
+                        userAvatar.src = "https://ui-avatars.com/api/?name=" + encodeURIComponent(nameForAvatar) + "&background=random";
+                    }
+                    userAvatar.title = `Chào, ${nameForAvatar}`;
+                } else {
+                    // Nếu chưa đăng nhập, đổi avatar góc phải thành nút Đăng nhập
+                    userArea.innerHTML = `<button onclick="location.href='login.html'" style="background: #a3704c; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; font-family: 'Merriweather', serif; font-size: 12px;">Đăng nhập</button>`;
+                }
+            }
+        }
 
         function loadBookDetails() {
             fetch(`http://localhost:8080/api/books/${bookId}`)
@@ -416,7 +449,11 @@
                 });
         }
 
-        window.addEventListener('DOMContentLoaded', loadBookDetails);
+        // Chạy đồng thời cả 2 hàm khi trang tải xong
+        window.addEventListener('DOMContentLoaded', () => {
+            checkUserSession(); // Cập nhật hình đại diện user
+            loadBookDetails();  // Tải chi tiết truyện
+        });
     </script>
 </body>
 
