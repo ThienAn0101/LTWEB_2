@@ -220,14 +220,13 @@
                 <button type="submit" class="btn-submit">Cập nhật thông tin</button>
             </form>
 
-            <div class="list-section-title">❤️ Danh sách truyện yêu thích</div>
-            <div class="book-grid" id="favoriteBooksList">
-                <div class="book-item" onclick="location.href='book.html?id=2'">
-                    <img src="https://m.media-amazon.com/images/I/81A7N8MvvXL._AC_UF1000,1000_QL80_.jpg"
-                        alt="The Shining">
-                    <p>The Shining</p>
-                </div>
+        <a href="favorites.html" style="text-decoration: none; color: inherit; display: block;">
+            <div class="list-section-title"
+                style="cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+                <span>❤️ Danh sách truyện yêu thích của tôi</span>
+                <span style="font-size: 14px; color: #A3704C; font-weight: normal;">Xem tất cả →</span>
             </div>
+        </a>
 
             <div class="list-section-title">🕒 Lịch sử truyện đã đọc</div>
             <div class="book-grid" id="historyBooksList">
@@ -239,36 +238,38 @@
         </div>
     </div>
 
-    <script>
-        // Khai báo biến toàn cục để lưu trữ trạng thái người dùng hiện tại
-        let currentUser = {};
+<script>
+    let currentUser = {};
+    const FAVORITE_API = 'http://localhost:8080/api/favorites';
 
-        document.addEventListener("DOMContentLoaded", () => {
-            // Lấy chính xác object từ localStorage
-            const storedUser = localStorage.getItem("currentUser");
+    document.addEventListener("DOMContentLoaded", () => {
+        const storedUser = localStorage.getItem("currentUser");
 
-            if (storedUser) {
-                currentUser = JSON.parse(storedUser);
+        if (storedUser) {
+            currentUser = JSON.parse(storedUser);
+            document.getElementById("inputUsername").value = currentUser.fullName || currentUser.username || "";
 
-                // Đồng bộ hiển thị thông tin lên form: Ưu tiên fullName, nếu không có lấy username
-                document.getElementById("inputUsername").value = currentUser.fullName || currentUser.username || "Thiên Ân";
-
-                if (currentUser.avatar) {
-                    document.getElementById("profileAvatar").src = currentUser.avatar;
-                } else {
-                    // Nếu chưa có avatar, tự tạo avatar chữ dựa trên tên hợp lệ
-                    const nameForAvatar = currentUser.fullName || currentUser.username || "User";
-                    document.getElementById("profileAvatar").src = `https://ui-avatars.com/api/?name=${encodeURIComponent(nameForAvatar)}&background=random`;
-                }
+            const userAvatar = currentUser.avatar || currentUser.avatarUrl;
+            if (userAvatar) {
+                document.getElementById("profileAvatar").src = userAvatar;
             } else {
-                // Nếu chưa đăng nhập, đá về trang login
-                alert("Vui lòng đăng nhập để xem hồ sơ!");
-                location.href = "login.html";
-                return;
+                const nameForAvatar = currentUser.fullName || currentUser.username || "User";
+                document.getElementById("profileAvatar").src = `https://ui-avatars.com/api/?name=${encodeURIComponent(nameForAvatar)}&background=random`;
             }
+        } else {
+            alert("Vui lòng đăng nhập để xem hồ sơ!");
+            location.href = "login.html";
+            return;
+        }
 
-            // Xử lý sự kiện upload avatar từ thiết bị
-            const avatarInput = document.getElementById("avatarInput");
+        const userId = currentUser.id || currentUser.userId;
+        if (userId) {
+            loadUserFavorites(userId);
+        }
+
+        // Xử lý sự kiện upload avatar từ thiết bị
+        const avatarInput = document.getElementById("avatarInput");
+        if (avatarInput) {
             avatarInput.addEventListener("change", function () {
                 const file = this.files[0];
                 if (file) {
@@ -279,48 +280,82 @@
                     reader.readAsDataURL(file);
                 }
             });
+        }
 
-            // Xử lý nút Đăng xuất
-            document.getElementById("btnLogout").addEventListener("click", () => {
+        // Xử lý nút Đăng xuất
+        const btnLogout = document.getElementById("btnLogout");
+        if (btnLogout) {
+            btnLogout.addEventListener("click", () => {
                 localStorage.removeItem("currentUser");
                 alert("Đăng xuất thành công!");
                 location.href = "index.html";
             });
+        }
+    });
 
-            loadUserLists();
-        });
+    // HÀM TẢI VÀ HIỂN THỊ DANH SÁCH YÊU THÍCH CHUẨN XÁC
+    function loadUserFavorites(userId) {
+        const container = document.getElementById("favorite-books-list");
+        if (!container) return;
 
-        // 🌟 HÀM XỬ LÝ LƯU THÔNG TIN KHÔNG LÀM MẤT DỮ LIỆU CŨ
-        function saveProfile(event) {
-            event.preventDefault();
-            const newName = document.getElementById("inputUsername").value;
-            const newPassword = document.getElementById("inputPassword").value;
-            const avatarSrc = document.getElementById("profileAvatar").src;
+        fetch(`${FAVORITE_API}/user/${userId}`)
+            .then(res => {
+                if (!res.ok) throw new Error("Không thể lấy danh sách yêu thích");
+                return res.json();
+            })
+            .then(favorites => {
+                container.innerHTML = "";
 
-            // Sử dụng spread operator `...currentUser` để giữ nguyên toàn bộ fields cũ (role, password, id, username...)
-            const updatedUserData = {
-                ...currentUser,
-                fullName: newName,  // Cập nhật tên hiển thị chính xác đồng bộ với index.html
-                avatar: avatarSrc
-            };
+                if (!Array.isArray(favorites) || favorites.length === 0) {
+                    container.innerHTML = "<p style='grid-column: 1/-1; color: #8A6B4A;'>Bạn chưa yêu thích quyển truyện nào.</p>";
+                    return;
+                }
 
-            // Nếu người dùng nhập mật khẩu mới thì mới ghi đè password
-            if (newPassword.trim() !== "") {
-                updatedUserData.password = newPassword;
-            }
+                favorites.forEach(fav => {
+                    // Kiểm tra bóc tách thực thể book (hỗ trợ cả các cấu trúc trả về khác nhau)
+                    const book = fav.book || fav.books;
+                    if (book) {
+                        const coverImg = book.coverUrl ? `http://localhost:8080${book.coverUrl}` : 'https://via.placeholder.com/180x240/C7AD84/FDFBF7?text=3T+Story';
 
-            // Lưu đè object đã cập nhật toàn vẹn vào LocalStorage
-            localStorage.setItem("currentUser", JSON.stringify(updatedUserData));
-            alert("Cập nhật thông tin tài khoản thành công!");
+                        const bookItem = document.createElement("div");
+                        bookItem.className = "book-item";
+                        bookItem.setAttribute("onclick", `location.href='detail-book.html?id=${book.id}'`);
 
-            // Tải lại trang để cập nhật giao diện mới nhất
-            window.location.reload();
+                        bookItem.innerHTML = `
+                            <img src="${coverImg}" alt="${book.title}" onerror="this.src='https://via.placeholder.com/180x240/C7AD84/FDFBF7?text=3T+Story'" />
+                            <p>${book.title}</p>
+                        `;
+                        container.appendChild(bookItem);
+                    }
+                });
+            })
+            .catch(err => {
+                console.error("Lỗi lấy danh sách truyện yêu thích:", err);
+                container.innerHTML = "<p style='grid-column: 1/-1; color: #C94C4C;'>Không thể tải danh sách truyện yêu thích lúc này.</p>";
+            });
+    }
+
+    function saveProfile(event) {
+        event.preventDefault();
+        const newName = document.getElementById("inputUsername").value;
+        const newPassword = document.getElementById("inputPassword").value;
+        const avatarSrc = document.getElementById("profileAvatar").src;
+
+        const updatedUserData = {
+            ...currentUser,
+            fullName: newName,
+            avatar: avatarSrc
+        };
+
+        if (newPassword && newPassword.trim() !== "") {
+            updatedUserData.password = newPassword;
         }
 
-        function loadUserLists() {
-            // Không gian phát triển kết nối API sau này
-        }
-    </script>
+        localStorage.setItem("currentUser", JSON.stringify(updatedUserData));
+        alert("Cập nhật thông tin tài khoản thành công!");
+        window.location.reload();
+    }
+</script>
 </body>
 
 </html>

@@ -54,6 +54,7 @@
                 <a href="manage-chapters.html" class="menu-item active"><i class="fa-solid fa-list-ol"></i> Quản lý
                     Chương</a>
                 <a href="manage-banners.html" class="menu-item"><i class="fa-solid fa-images"></i> Quản lý Banner</a>
+                <a href="manage-comments.html" class="menu-item"><i class="fas fa-comments"></i> Quản lý Bình luận</a>
             </nav>
         </aside>
 
@@ -112,58 +113,69 @@
     </div>
 
     <script>
-        // 1. Lấy tham số mã truyện từ URL nếu có (để hỗ trợ chuyển hướng từ trang quản lý truyện sang)
+        // 1. Nhận diện ID truyện cũ từ URL (nếu có)
         const urlParams = new URLSearchParams(window.location.search);
         let currentBookId = urlParams.get('bookId');
 
-        // Khi vừa tải trang: Load danh sách tất cả các bộ truyện đổ vào ô Dropdown chọn nhanh
         document.addEventListener("DOMContentLoaded", () => {
-            fetch('http://localhost:8080/api/books')
-                .then(res => res.json())
-                .then(books => {
-                    const select = document.getElementById('bookSelect');
-                    books.forEach(book => {
-                        const option = document.createElement('option');
-                        option.value = book.id;
-                        option.textContent = book.title;
-                        // Nếu có bookId trên URL, tự động chọn sẵn bộ truyện đó trong danh sách thả xuống
-                        if (currentBookId && book.id == currentBookId) {
-                            option.selected = true;
+                // Tải danh sách bộ truyện đổ vào ô Dropdown - Đã thêm ?size=100 để lấy toàn bộ truyện
+                fetch('http://localhost:8080/api/books?size=100')
+                    .then(res => res.json())
+                    .then(data => {
+                        const select = document.getElementById('bookSelect');
+
+                        // Tự động bóc tách mảng từ 'data.content' nếu Backend sử dụng Pageable
+                        let books = Array.isArray(data) ? data : (data.content || []);
+
+                        books.forEach(book => {
+                            const option = document.createElement('option');
+                            option.value = book.id;
+                            option.textContent = book.title;
+
+                            if (currentBookId && book.id == currentBookId) {
+                                option.selected = true;
+                            }
+                            select.appendChild(option);
+                        });
+
+                        if (currentBookId) {
+                            loadChapters(currentBookId);
                         }
-                        select.appendChild(option);
-                    });
+                    })
+                    .catch(err => console.error("Không thể tải danh sách truyện:", err));
+            });
 
-                    // Nếu có sẵn bookId trên URL thì tải luôn danh sách chương của bộ truyện đó
-                    if (currentBookId) {
-                        loadChapters(currentBookId);
-                    }
-                })
-                .catch(err => console.error("Không thể tải danh sách truyện:", err));
-        });
+        // Hàm xử lý khi người dùng thay đổi bộ truyện trên giao diện
+        if (typeof window.onBookChange === 'undefined') {
+            window.onBookChange = function (bookId) {
+                currentBookId = bookId;
 
-        // Hàm xử lý sự kiện khi Admin tự tay đổi chọn bộ truyện khác trên ô thả xuống
-        function onBookChange(bookId) {
-            currentBookId = bookId;
-            if (!bookId) {
-                // Nếu chọn dòng trống mặc định
-                document.getElementById('book-title-heading').innerText = "Chưa chọn truyện";
-                document.getElementById('add-chapter-btn').disabled = true;
-                document.getElementById('add-chapter-btn').style.opacity = "0.5";
-                document.getElementById('add-chapter-btn').style.cursor = "not-allowed";
-                document.getElementById('chapter-table-body').innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 30px; color:#BEB29A; font-style: italic;">Vui lòng lựa chọn một bộ truyện ở ô phía trên để xem danh sách chương.</td></tr>`;
-                return;
-            }
-            // Cập nhật lại danh sách chương tương ứng
-            loadChapters(bookId);
+                // Đồng bộ cập nhật lại tham số `?bookId=` lên thanh địa chỉ của trình duyệt để lưu vết
+                const newUrl = bookId
+                    ? `${window.location.pathname}?bookId=${bookId}`
+                    : window.location.pathname;
+                window.history.replaceState({ path: newUrl }, '', newUrl);
+
+                if (!bookId) {
+                    document.getElementById('book-title-heading').innerText = "Chưa chọn truyện";
+                    const addBtn = document.getElementById('add-chapter-btn');
+                    addBtn.disabled = true;
+                    addBtn.style.opacity = "0.5";
+                    addBtn.style.cursor = "not-allowed";
+                    document.getElementById('chapter-table-body').innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 30px; color:#BEB29A; font-style: italic;">Vui lòng lựa chọn một bộ truyện ở ô phía trên để xem danh sách chương.</td></tr>`;
+                    return;
+                }
+                loadChapters(bookId);
+            };
         }
 
-        // 2. Hàm gọi API lấy danh sách chương truyện đổ lên bảng dữ liệu
+        // 2. Hàm gọi API lấy danh sách chương của bộ truyện được chọn
         function loadChapters(bookId) {
             const selectElement = document.getElementById('bookSelect');
             const selectedText = selectElement.options[selectElement.selectedIndex]?.text || `Bộ truyện #${bookId}`;
             document.getElementById('book-title-heading').innerText = selectedText;
 
-            // Kích hoạt nút thêm chương mới hoạt động
+            // KÍCH HOẠT NÚT THÊM CHƯƠNG (Truyền chính xác bookId đi cùng)
             const addBtn = document.getElementById('add-chapter-btn');
             addBtn.disabled = false;
             addBtn.style.opacity = "1";
@@ -174,16 +186,19 @@
 
             fetch(`http://localhost:8080/api/books/${bookId}/chapters`)
                 .then(res => res.json())
-                .then(chapters => {
+                .then(data => {
                     const tbody = document.getElementById('chapter-table-body');
                     tbody.innerHTML = '';
+
+                    // SỬA TẠI ĐÂY: Tiếp tục phòng hờ nếu API lấy chương truyện cũng dùng phân trang (Pageable)
+                    let chapters = Array.isArray(data) ? data : (data.content || []);
 
                     if (!chapters || chapters.length === 0) {
                         tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 30px; color:#BEB29A; font-style: italic;">Bộ truyện này hiện tại chưa có chương nào. Hãy bấm nút thêm chương mới!</td></tr>`;
                         return;
                     }
 
-                    // Sắp xếp tăng dần theo số thứ tự chương
+                    // Sắp xếp các chương tăng dần theo số thứ tự chương
                     chapters.sort((a, b) => a.chapterNumber - b.chapterNumber);
 
                     chapters.forEach(chap => {
@@ -207,7 +222,7 @@
                 })
                 .catch(err => {
                     console.error(err);
-                    document.getElementById('chapter-table-body').innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 30px; color:#ff6b6b;">Không thể tải dữ liệu chương từ Backend.</td></tr>`;
+                    document.getElementById('chapter-table-body').innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 30px; color:#ff6b6b;">Không thể tải dữ liệu chương từ Backend hoặc sai URL API.</td></tr>`;
                 });
         }
 

@@ -30,6 +30,9 @@ public class User {
     @Column(nullable = false)
     private String role = "USER";
 
+    @Column(name = "status")
+    private Integer status = 1;
+
     // --- CONSTRUCTOR ---
     public User() {
     }
@@ -110,5 +113,13 @@ public class User {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
     }
 }

@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Truyện Yêu Thích - 3T Story</title>
+    <!-- Nhúng FontAwesome để dùng icon trái tim và user -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #F4EAD4;
+            color: #4A3728;
+            margin: 0;
+            padding: 0;
+        }
+
+        .client-header {
+            background-color: #CDB380;
+            padding: 15px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo-text {
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .highlight {
+            color: #8B5A2B;
+        }
+
+        .main-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .page-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 25px;
+            border-bottom: 3px solid #CDB380;
+            padding-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* GIAO DIỆN GRID HIỂN THỊ TRUYỆN GIỐNG TRANG CHỦ */
+        .books-grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 30px;
+        }
+
+        .book-card-wrapper {
+            position: relative;
+            background: #FDFBF7;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s;
+        }
+
+        .book-card-wrapper:hover {
+            transform: translateY(-5px);
+        }
+
+        .book-card {
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .book-card-cover {
+            width: 100%;
+            height: 260px;
+            object-fit: cover;
+        }
+
+        .book-card-info {
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex-grow: 1;
+        }
+
+        .book-card-title {
+            margin: 0;
+            font-size: 16px;
+            font-weight: bold;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .book-card-author {
+            margin: 0;
+            font-size: 13px;
+            color: #666;
+        }
+
+        /* NÚT THẢ TIM TRÊN GÓC ẢNH TRUYỆN */
+        .favorite-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #C94C4C;
+            font-size: 16px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            z-index: 10;
+            transition: all 0.2s;
+        }
+
+        .favorite-btn:hover {
+            transform: scale(1.1);
+            background: #fff;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- THANH HEADER TOÀN CỤC -->
+    <header class="client-header">
+        <div class="logo-container">
+            <span class="logo-text" onclick="location.href='index.html'">3T <span class="highlight">Story</span></span>
+        </div>
+        <button onclick="location.href='profile.html'"
+            style="background: transparent; border: 1px solid #4A3728; padding: 7px 15px; border-radius: 4px; cursor: pointer; font-weight: bold;">
+            ← Quay lại Hồ sơ
+        </button>
+    </header>
+
+    <!-- NỘI DUNG CHÍNH -->
+    <div class="main-container">
+        <div class="page-title">
+            <i class="fa-solid fa-heart" style="color: #C94C4C;"></i> Kệ Sách Yêu Thích Của Bạn
+        </div>
+
+        <!-- Lưới danh sách truyện sẽ được render vào đây -->
+        <div id="favorite-books-grid" class="books-grid-container">
+            <!-- Loading text ban đầu -->
+            <p style="grid-column: 1/-1; text-align: center; color: #8A6B4A;">Đang tải danh sách sách yêu thích...</p>
+        </div>
+    </div>
+
+    <!-- LOGIC XỬ LÝ API TRUYỆN YÊU THÍCH -->
+    <script>
+        const FAVORITE_API = 'http://localhost:8080/api/favorites';
+
+        document.addEventListener("DOMContentLoaded", () => {
+                const storedUser = localStorage.getItem("currentUser");
+                if (!storedUser) {
+                    alert("Vui lòng đăng nhập để xem tủ sách yêu thích!");
+                    location.href = "login.html";
+                    return;
+                }
+
+                const currentUser = JSON.parse(storedUser);
+
+                // Ép kiểu chắc chắn userId về dạng số thuần túy, loại bỏ mọi ký tự lạ nếu có
+                const rawId = currentUser.id || currentUser.userId;
+                const userId = parseInt(rawId, 10);
+
+                if (!isNaN(userId)) {
+                    loadFavoriteBooks(userId); // Gọi hàm tải sách
+                } else {
+                    alert("Thông tin tài khoản bị lỗi ID không hợp lệ.");
+                    console.error("ID lấy từ localStorage bị lỗi cấu trúc:", rawId);
+                }
+            });
+
+        // 2. Hàm gọi API Spring Boot lấy sách đã thích
+        function loadFavoriteBooks(userId) {
+                const container = document.getElementById("favorite-books-grid");
+                if (!container) return;
+
+                fetch(`${FAVORITE_API}/user/${userId}`)
+                    .then(res => {
+                        if (!res.ok) throw new Error("Không thể kết nối đến máy chủ");
+                        return res.json();
+                    })
+                    .then(async favorites => { // Thêm async ở đây để xử lý đợi nạp dữ liệu sách
+                        container.innerHTML = ""; // Xóa dòng chữ đang tải...
+
+                        if (!Array.isArray(favorites) || favorites.length === 0) {
+                            container.innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 40px 0;">
+                        <p style="font-size: 18px; color: #8A6B4A; margin-bottom: 10px;">Kệ sách trống trơn. Bạn chưa bấm thích truyện nào hết!</p>
+                        <a href="index.html" style="color: #8B5A2B; font-weight: bold; text-decoration: none; border-bottom: 2px solid #8B5A2B;">Khám phá truyện ngay →</a>
+                    </div>
+                `;
+                            return;
+                        }
+
+                        // Duyệt qua từng bản ghi yêu thích
+                        for (const item of favorites) {
+                            // Lấy ra mã ID của sách (Dựa trên log Console của bạn: item.bookId)
+                            const bookId = item.bookId;
+
+                            if (bookId) {
+                                try {
+                                    // Gọi API lấy thông tin chi tiết của cuốn sách dựa vào bookId
+                                    // (Bạn hãy kiểm tra xem API lấy chi tiết sách của bạn có đúng đường dẫn này không nhé, ví dụ: /api/books/9)
+                                    const bookRes = await fetch(`http://localhost:8080/api/books/${bookId}`);
+                                    if (!bookRes.ok) continue; // Nếu lỗi một cuốn thì bỏ qua, chạy tiếp cuốn sau
+
+                                    const book = await bookRes.json();
+
+                                    // Xử lý đường dẫn ảnh bìa của truyện
+                                    let coverImgUrl = 'https://via.placeholder.com/200x260/C7AD84/FDFBF7?text=3T+Story';
+                                    if (book.coverUrl) {
+                                        coverImgUrl = book.coverUrl.startsWith('http') ? book.coverUrl : `http://localhost:8080${book.coverUrl}`;
+                                    }
+
+                                    // Tạo và chèn giao diện sách vào lưới hiển thị
+                                    const cardWrapper = document.createElement("div");
+                                    cardWrapper.className = "book-card-wrapper";
+                                    cardWrapper.id = `fav-card-${book.id}`;
+
+                                    cardWrapper.innerHTML = `
+                            <button class="favorite-btn" onclick="removeFavorite(event, ${userId}, ${book.id})">
+                                <i class="fa-solid fa-heart"></i>
+                            </button>
+                            <a class="book-card" href="detail-book.html?id=${book.id}">
+                                <img src="${coverImgUrl}" alt="${book.title}" class="book-card-cover" onerror="this.src='https://via.placeholder.com/200x260/C7AD84/FDFBF7?text=No+Image'">
+                                <div class="book-card-info">
+                                    <h3 class="book-card-title">${book.title}</h3>
+                                    <p class="book-card-author"><i class="fa-regular fa-user"></i> ${book.author || 'Khuyết Danh'}</p>
+                                </div>
+                            </a>
+                        `;
+                                    container.appendChild(cardWrapper);
+
+                                } catch (bookError) {
+                                    console.error(`Lỗi khi tải chi tiết sách ID ${bookId}:`, bookError);
+                                }
+                            }
+                        }
+                    })
+                    .catch(err => {
+                        console.error("Lỗi hiển thị danh sách:", err);
+                        container.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: #C94C4C; padding: 20px;">❌ Không thể hiển thị danh sách truyện lúc này.</p>`;
+                    });
+            }
+
+        // 3. Tính năng mở rộng: Bấm vào tim ở trang này sẽ BỎ THÍCH ngay lập tức và biến mất khỏi danh sách
+        function removeFavorite(event, userId, bookId) {
+            event.preventDefault();
+            event.stopPropagation();
+
+            if (!confirm("Bạn có muốn xóa cuốn truyện này khỏi danh sách yêu thích?")) return;
+
+            fetch(`${FAVORITE_API}?userId=${userId}&bookId=${bookId}`, {
+                method: "DELETE"
+            })
+                .then(async res => {
+                    if (res.ok) {
+                        // Xóa thẻ bọc sách ra khỏi giao diện ngay lập tức mà không cần F5
+                        const card = document.getElementById(`fav-card-${bookId}`);
+                        if (card) card.remove();
+
+                        // Nếu sau khi xóa mà không còn cuốn nào thì hiển thị thông báo trống
+                        const container = document.getElementById("favorite-books-grid");
+                        if (container.children.length === 0) {
+                            container.innerHTML = `
+                            <div style="grid-column: 1/-1; text-align: center; padding: 5px 0;">
+                                <p style="font-size: 16px; color: #8A6B4A;">Kệ sách trống trơn. Bạn chưa bấm thích truyện nào hết!</p>
+                                <a href="index.html" style="color: #A3704C; font-weight: bold; text-decoration: none;">Khám phá truyện ngay →</a>
+                            </div>
+                        `;
+                        }
+                    } else {
+                        alert("Không thể xóa truyện yêu thích lúc này.");
+                    }
+                })
+                .catch(err => console.error("Lỗi khi hủy yêu thích:", err));
+        }
+    </script>
+</body>
+
+</html>

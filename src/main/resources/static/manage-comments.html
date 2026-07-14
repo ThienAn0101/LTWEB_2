@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3T Story - Quản lý Bình luận</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Kế thừa stylesheet chung của hệ thống giống như Dashboard -->
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        /* CSS bổ sung để định dạng riêng cho cấu trúc bảng và các nút hành động */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            margin-top: 10px;
+        }
+
+        .data-table th {
+            color: #C08B5C;
+            padding: 14px 16px;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid #3D2B22;
+            font-weight: 700;
+        }
+
+        .data-table td {
+            padding: 16px;
+            border-bottom: 1px solid #3D2B22;
+            font-size: 14px;
+            color: #FFF1DC;
+            vertical-align: middle;
+        }
+
+        .data-table tr:hover {
+            background-color: rgba(61, 43, 34, 0.2);
+        }
+
+        /* Đồng bộ các nút xử lý với phong cách nút bấm gỗ trầm */
+        .btn {
+            padding: 8px 14px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-delete {
+            background-color: transparent;
+            color: #9c3a3a;
+            border: 1px solid rgba(156, 58, 58, 0.5);
+        }
+
+        .btn-delete:hover {
+            background-color: #9c3a3a;
+            color: #fff;
+            border-color: #9c3a3a;
+        }
+
+        .btn-lock {
+            background-color: transparent;
+            color: #C08B5C;
+            border: 1px solid rgba(192, 139, 92, 0.5);
+            margin-left: 8px;
+        }
+
+        .btn-lock:hover {
+            background-color: #C08B5C;
+            color: #0B0908;
+            border-color: #C08B5C;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="app-container">
+        <!-- Sidebar Layout kế thừa từ Dashboard -->
+        <aside class="sidebar">
+            <div class="logo-container">
+                <span class="logo-text">3T <span class="highlight">Story</span></span>
+            </div>
+            <nav class="menu">
+                <a href="dashboard.html" class="menu-item"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+                <a href="manage-users.html" class="menu-item"><i class="fa-solid fa-users"></i> Đọc giả</a>
+                <a href="admin.html" class="menu-item"><i class="fa-solid fa-list"></i> Danh mục truyện</a>
+                <a href="manage-books.html" class="menu-item"><i class="fa-solid fa-book"></i> Quản lý Truyện</a>
+                <a href="manage-chapters.html" class="menu-item"><i class="fa-solid fa-list-ol"></i> Quản lý Chương</a>
+                <a href="manage-banners.html" class="menu-item"><i class="fa-solid fa-images"></i> Quản lý Banner</a>
+                <!-- Đã kích hoạt hiệu ứng active chuẩn xác cho tab Bình luận -->
+                <a href="manage-comments.html" class="menu-item active"><i class="fas fa-comments"></i> Quản lý Bình
+                    luận</a>
+            </nav>
+        </aside>
+
+        <!-- Main Content Layout kế thừa từ Dashboard -->
+        <main class="main-content">
+            <header class="top-header">
+                <div class="system-title">3T STORY <span class="sub-title">MANAGEMENT SYSTEM</span></div>
+                <div class="admin-profile">
+                    <div class="admin-info">
+                        <span class="role">👑 ADMIN</span>
+                        <span class="name">TIÊN LÊ</span>
+                    </div>
+                    <div class="avatar">TL</div>
+                </div>
+            </header>
+
+            <section class="content-body">
+                <div class="table-header">
+                    <h2><i class="fa-solid fa-comments"></i> Danh Sách Duyệt Bình Luận & Góp Ý</h2>
+                </div>
+
+                <!-- Thừa hưởng hộp bọc table-card bo góc hoàn hảo từ Dashboard -->
+                <div class="table-card">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 80px;">ID</th>
+                                <th style="width: 100px;">User ID</th>
+                                <th style="width: 100px;">Book ID</th>
+                                <th>Nội dung bình luận</th>
+                                <th style="width: 220px; text-align: center;">Hành động xử lý</th>
+                            </tr>
+                        </thead>
+                        <tbody id="commentTableBody">
+                            <tr>
+                                <td colspan="5" style="text-align: center; color: #DCCFBC;">
+                                    <i class="fas fa-spinner fa-spin"></i> Đang tải danh sách dữ liệu...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:8080/api/comments';
+
+        document.addEventListener("DOMContentLoaded", function () {
+            loadAllComments();
+        });
+
+        function loadAllComments() {
+            fetch(`${API_BASE_URL}/admin/all`)
+                .then(response => {
+                    if (!response.ok) throw new Error("Lỗi tải dữ liệu");
+                    return response.json();
+                })
+                .then(data => {
+                    const tbody = document.getElementById("commentTableBody");
+                    tbody.innerHTML = "";
+
+                    if (data.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #DCCFBC;">Chưa có bình luận nào trong hệ thống.</td></tr>`;
+                        return;
+                    }
+
+                    data.forEach(item => {
+                        const tr = document.createElement("tr");
+                        tr.innerHTML = `
+                            <td>#${item.id}</td>
+                            <td><strong>${item.userId}</strong></td> 
+                            <td>#${item.bookId}</td>
+                            <td>${item.content}</td>
+                            <td style="text-align: center;">
+                                <button class="btn btn-delete" onclick="deleteComment(${item.id})">Xóa</button>
+                                <button class="btn btn-lock" onclick="lockUserAccount(${item.userId})">Khóa</button>
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                })
+                .catch(error => {
+                    console.error(error);
+                    document.getElementById("commentTableBody").innerHTML = `
+                        <tr><td colspan="5" style="text-align: center; color: #9c3a3a; font-weight: bold;">
+                            <i class="fas fa-exclamation-triangle"></i> Không thể kết nối tới server API Spring Boot!
+                        </td></tr>`;
+                });
+        }
+
+        function deleteComment(commentId) {
+            if (confirm(`Bạn có chắc chắn muốn xóa vĩnh viễn bình luận #${commentId} này không?`)) {
+                fetch(`${API_BASE_URL}/admin/delete/${commentId}`, {
+                    method: 'DELETE'
+                })
+                    .then(response => response.text())
+                    .then(msg => {
+                        alert(msg);
+                        loadAllComments();
+                    })
+                    .catch(err => alert("Xảy ra lỗi khi xóa: " + err));
+            }
+        }
+
+        function lockUserAccount(userId) {
+            if (confirm(`Độc giả (ID: ${userId}) phạm quá nhiều lỗi tiêu cực. Bạn chắc chắn muốn khóa tài khoản này chứ?`)) {
+                fetch(`${API_BASE_URL}/admin/user/${userId}/status?active=false`, {
+                    method: 'PUT'
+                })
+                    .then(response => response.text())
+                    .then(msg => {
+                        alert(msg);
+                        loadAllComments();
+                    })
+                    .catch(err => alert("Xảy ra lỗi khi khóa tài khoản: " + err));
+            }
+        }
+    </script>
+</body>
+
+</html>

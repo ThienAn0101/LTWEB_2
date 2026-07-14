@@ -334,6 +334,8 @@
                 <p style="color: #F2E7D4; font-size: 14px;">Đang tìm kiếm các cuốn sách tương tự...</p>
             </div>
         </div>
+
+        
     </main>
 
     <script>
@@ -412,43 +414,63 @@
         }
 
         function loadRelatedBooks(categoryId) {
-            fetch(`http://localhost:8080/api/books`)
-                .then(res => res.json())
-                .then(allBooks => {
-                    const grid = document.getElementById("relatedBooksGrid");
-                    grid.innerHTML = "";
+                fetch(`http://localhost:8080/api/books`)
+                    .then(res => res.json())
+                    .then(data => {
+                        const grid = document.getElementById("relatedBooksGrid");
+                        grid.innerHTML = "";
 
-                    const filtered = allBooks.filter(b => b.id != bookId && b.category && b.category.id === categoryId);
-                    const displayList = filtered.length > 0 ? filtered.slice(0, 5) : allBooks.filter(b => b.id != bookId).slice(0, 5);
+                        // Kiểm tra nếu dữ liệu trả về là Object có chứa mảng 'content' (Phân trang của Spring Boot Pageable)
+                        // Nếu không thì kiểm tra xem chính 'data' có phải là mảng không
+                        let allBooks = [];
+                        if (data && Array.isArray(data.content)) {
+                            allBooks = data.content;
+                        } else if (Array.isArray(data)) {
+                            allBooks = data;
+                        } else {
+                            console.error("Dữ liệu API không đúng định dạng mảng:", data);
+                            grid.innerHTML = `<p style="color: #F2E7D4; font-size: 14px;">Dữ liệu không hợp lệ.</p>`;
+                            return;
+                        }
 
-                    if (displayList.length === 0) {
-                        grid.innerHTML = `<p style="color: #F2E7D4; font-size: 14px;">Chưa tìm thấy truyện liên quan nào khác.</p>`;
-                        return;
-                    }
+                        const currentBookId = parseInt(bookId);
 
-                    displayList.forEach(item => {
-                        const card = document.createElement("a");
-                        card.className = "related-book-card";
-                        card.href = `detail-book.html?id=${item.id}`;
+                        // 1. Lọc các truyện cùng danh mục (loại trừ truyện hiện tại đang xem)
+                        let filtered = allBooks.filter(b => {
+                            return b.id == currentBookId ? false : (b.category && b.category.id == categoryId);
+                        });
 
-                        const cUrl = item.coverUrl ? `http://localhost:8080${item.coverUrl}` : 'https://via.placeholder.com/180x240/C7AD84/FDFBF7?text=3T+Story';
+                        // 2. Nếu không có truyện nào cùng danh mục, lấy đại 5 truyện khác để gợi ý
+                        const displayList = filtered.length > 0 ? filtered.slice(0, 5) : allBooks.filter(b => b.id != currentBookId).slice(0, 5);
 
-                        card.innerHTML = `
-                            <img src="${cUrl}" alt="${item.title}" class="related-cover">
-                            <div class="related-info">
-                                <h4 class="related-title">${item.title}</h4>
-                                <p class="related-author">${item.author || 'Khuyết danh'}</p>
-                            </div>
-                        `;
-                        grid.appendChild(card);
+                        if (displayList.length === 0) {
+                            grid.innerHTML = `<p style="color: #F2E7D4; font-size: 14px;">Chưa tìm thấy truyện liên quan nào khác.</p>`;
+                            return;
+                        }
+
+                        // 3. Render dữ liệu ra giao diện HTML
+                        displayList.forEach(item => {
+                            const card = document.createElement("a");
+                            card.className = "related-book-card";
+                            card.href = `detail-book.html?id=${item.id}`;
+
+                            const cUrl = item.coverUrl ? `http://localhost:8080${item.coverUrl}` : 'https://via.placeholder.com/180x240/C7AD84/FDFBF7?text=3T+Story';
+
+                            card.innerHTML = `
+                    <img src="${cUrl}" alt="${item.title}" class="related-cover">
+                    <div class="related-info">
+                        <h4 class="related-title">${item.title}</h4>
+                        <p class="related-author">${item.author || 'Khuyết danh'}</p>
+                    </div>
+                `;
+                            grid.appendChild(card);
+                        });
+                    })
+                    .catch(err => {
+                        console.error("Không thể tải truyện liên quan:", err);
+                        document.getElementById("relatedBooksGrid").innerHTML = `<p style="color: #F2E7D4; font-size: 14px;">Lỗi kết nối hệ thống dữ liệu gợi ý.</p>`;
                     });
-                })
-                .catch(err => {
-                    console.error("Không thể tải truyện liên quan:", err);
-                    document.getElementById("relatedBooksGrid").innerHTML = "";
-                });
-        }
-
+            }
         // Chạy đồng thời cả 2 hàm khi trang tải xong
         window.addEventListener('DOMContentLoaded', () => {
             checkUserSession(); // Cập nhật hình đại diện user

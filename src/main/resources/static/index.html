@@ -405,6 +405,44 @@
             .slide-desc { display: none; }
             .footer-content { grid-template-columns: 1fr; gap: 25px; }
         }
+
+        /* --- CSS CHO NÚT TIM YÊU THÍCH --- */
+        .book-card {
+            position: relative; /* Để định vị nút tim theo card sách */
+        }
+
+        .favorite-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(253, 251, 247, 0.9);
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            transition: all 0.2s ease;
+            z-index: 5; /* Nằm trên ảnh bìa */
+        }
+
+        .favorite-btn:hover {
+            transform: scale(1.1);
+            background: #FDFBF7;
+        }
+
+        .favorite-btn i {
+            font-size: 16px;
+            color: #8A6B4A; /* Màu mặc định khi chưa thích */
+            transition: color 0.2s;
+        }
+
+        .favorite-btn.liked i {
+            color: #e74c3c; /* Màu đỏ khi đã thích */
+        }
     </style>
 </head>
 
@@ -492,23 +530,26 @@
         const BOOK_API = 'http://localhost:8080/api/books';
         const BANNER_API = 'http://localhost:8080/api/banners';
         const CATEGORY_API = "http://localhost:8080/api/categories";
+        const FAVORITE_API = 'http://localhost:8080/api/favorites';
 
         let currentSlideIndex = 0;
         let totalSlides = 0;
         let allBooks = [];
+        let userFavorites = []; // Lưu mảng các Book ID dạng Number để check .includes()
 
-        // 1. 🌟 ĐÃ CẬP NHẬT: LOGIC HIỂN THỊ AVATAR VÀ LINK CHUYỂN TRANG CÁ NHÂN
+        // 1. KIỂM TRA TRẠNG THÁI ĐĂNG NHẬP VÀ ĐIỀU HƯỚNG TẢI DỮ LIỆU
         function checkLoginStatus() {
             const authZone = document.getElementById("authHeaderZone");
             const currentUser = JSON.parse(localStorage.getItem("currentUser"));
 
             if (currentUser) {
+                const userId = currentUser.id || currentUser.userId;
+
                 let adminButtonHtml = "";
                 if (currentUser.role === "ADMIN") {
                     adminButtonHtml = `<a href="manage-books.html" class="auth-btn"><i class="fa-solid fa-user-shield"></i> Góc Quản Trị</a>`;
                 }
 
-                // Cấu hình link ảnh avatar (nếu không có thì tạo ảnh chữ cái đầu động)
                 const userAvatarUrl = currentUser.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.fullName || currentUser.username)}&background=random`;
 
                 authZone.innerHTML = `
@@ -516,13 +557,56 @@
                         <img src="${userAvatarUrl}" alt="Avatar" style="width: 35px; height: 35px; border-radius: 50%; object-fit: cover; border: 2px solid #FDFBF7;">
                         <span class="user-welcome-txt">Chào, ${currentUser.fullName || currentUser.username}</span>
                     </div>
-                    ${adminButtonHtml} `;
+                    ${adminButtonHtml}
+                `;
+
+                if (userId) {
+                    loadUserFavorites(userId);
+                } else {
+                    console.error("Không tìm thấy ID của User trong localStorage!", currentUser);
+                    loadAllBooksToHome(); // Không có user vẫn tải sách bình thường
+                }
             } else {
                 authZone.innerHTML = `
                     <a href="login.html" class="auth-btn"><i class="fa-solid fa-key"></i> Đăng nhập</a>
                     <a href="register.html" class="auth-btn"><i class="fa-solid fa-user-plus"></i> Đăng ký</a>
                 `;
+                loadAllBooksToHome(); // Khách vãng lai chưa đăng nhập thì chỉ tải sách công khai
             }
+        }
+
+        // 2. TẢI DANH SÁCH TRUYỆN ĐÃ THÍCH (ĐÃ SỬA: Ép kiểu Number dứt điểm)
+        function loadUserFavorites(userId) {
+            if (!userId || userId === "undefined") {
+                loadAllBooksToHome();
+                return;
+            }
+
+            fetch(`${FAVORITE_API}/user/${userId}`)
+                .then(res => {
+                    if (!res.ok) throw new Error("Yêu cầu lấy danh sách yêu thích thất bại");
+                    return res.json();
+                })
+                .then(favorites => {
+                    if (Array.isArray(favorites)) {
+                        // Ép toàn bộ ID truyện đã thích về kiểu Number để so sánh chính xác
+                        userFavorites = favorites.map(fav => {
+                            const id = fav.book?.id || fav.book_id || fav.bookId;
+                            return id ? Number(id) : null;
+                        }).filter(id => id !== null);
+                    } else {
+                        userFavorites = [];
+                    }
+                    console.log("Danh sách ID yêu thích đã đồng bộ:", userFavorites);
+
+                    // Luôn gọi tải sách SAU KHI đã lấy xong danh sách tim yêu thích
+                    loadAllBooksToHome();
+                })
+                .catch(err => {
+                    console.error("Lỗi khi tải danh sách yêu thích:", err);
+                    userFavorites = [];
+                    loadAllBooksToHome();
+                });
         }
 
         function handleLogout() {
@@ -530,7 +614,7 @@
             window.location.reload();
         }
 
-        // 2. TẢI BANNER VÀ ĐỔ RA SLIDER
+        // 3. TẢI BANNER VÀ ĐỔ RA SLIDER
         function loadBannersToHome() {
             fetch(BANNER_API)
                 .then(res => res.json())
@@ -538,6 +622,7 @@
                     const wrapper = document.getElementById("sliderWrapper");
                     const dotsContainer = document.getElementById("sliderDots");
 
+                    if (!wrapper || !dotsContainer) return;
                     wrapper.innerHTML = "";
                     dotsContainer.innerHTML = "";
 
@@ -568,7 +653,8 @@
                 })
                 .catch(err => {
                     console.error("Lỗi khi tải banner:", err);
-                    document.querySelector(".banner-slider-container").style.display = "none";
+                    const container = document.querySelector(".banner-slider-container");
+                    if (container) container.style.display = "none";
                 });
         }
 
@@ -601,15 +687,15 @@
             });
         }
 
-        // 3. TẢI TOÀN BỘ TRUYỆN BAN ĐẦU VÀO BỘ NHỚ ĐỆM
+        // 4. TẢI TOÀN BỘ TRUYỆN BAN ĐẦU VÀO BỘ NHỚ ĐỆM
         function loadAllBooksToHome() {
-            fetch(BOOK_API)
+            fetch(`${BOOK_API}?page=0&size=100`)
                 .then(response => {
                     if (!response.ok) throw new Error("Lỗi mạng!");
                     return response.json();
                 })
-                .then(books => {
-                    allBooks = books;
+                .then(pageData => {
+                    allBooks = pageData.content || [];
                     renderBooks(allBooks);
                 })
                 .catch(error => {
@@ -618,9 +704,10 @@
                 });
         }
 
-        // 4. HÀM DỰNG GIAO DIỆN HIỂN THỊ SÁCH
+        // 5. HÀM DỰNG GIAO DIỆN HIỂN THỊ SÁCH (ĐÃ FIX: So sánh chuẩn Number)
         function renderBooks(booksList) {
             const container = document.getElementById('books-container');
+            if (!container) return;
             container.innerHTML = '';
 
             if (!booksList || booksList.length === 0) {
@@ -632,27 +719,103 @@
                 const coverImgUrl = book.coverUrl ? `http://localhost:8080${book.coverUrl}` : 'https://via.placeholder.com/180x240/C7AD84/FDFBF7?text=3T+Story';
                 const categoryName = book.category ? book.category.name : 'Truyện Chữ';
 
-                const bookLink = document.createElement('a');
-                bookLink.className = 'book-card';
-                bookLink.href = `detail-book.html?id=${book.id}`;
-                bookLink.innerHTML = `
-                    <img src="${coverImgUrl}" alt="${book.title}" class="book-card-cover" onerror="this.src='https://via.placeholder.com/180x240/C7AD84/FDFBF7?text=3T+Story'">
-                    <div class="book-card-info">
-                        <h3 class="book-card-title">${book.title}</h3>
-                        <p class="book-card-author"><i class="fa-regular fa-user"></i> ${book.author || 'Khuyết Danh'}</p>
-                        <span class="book-card-category">${categoryName}</span>
-                    </div>
+                // ĐÃ FIX: Ép book.id về kiểu Number để so khớp chuẩn xác với mảng userFavorites
+                const isLiked = userFavorites.includes(Number(book.id));
+                const heartClass = isLiked ? 'liked' : '';
+                const heartIcon = isLiked ? 'fa-solid fa-heart' : 'fa-regular fa-heart';
+
+                const bookCard = document.createElement('div');
+                bookCard.className = 'book-card-wrapper';
+                bookCard.style.position = 'relative';
+
+                bookCard.innerHTML = `
+                    <button class="favorite-btn ${heartClass}" onclick="toggleFavorite(event, ${book.id})">
+                        <i class="${heartIcon}"></i>
+                    </button>
+                    <a class="book-card" href="detail-book.html?id=${book.id}" style="height: 100%;">
+                        <img src="${coverImgUrl}" alt="${book.title}" class="book-card-cover" onerror="this.src='https://via.placeholder.com/180x240/C7AD84/FDFBF7?text=3T+Story'">
+                        <div class="book-card-info">
+                            <h3 class="book-card-title">${book.title}</h3>
+                            <p class="book-card-author"><i class="fa-regular fa-user"></i> ${book.author || 'Khuyết Danh'}</p>
+                            <span class="book-card-category">${categoryName}</span>
+                        </div>
+                    </a>
                 `;
-                container.appendChild(bookLink);
+                container.appendChild(bookCard);
             });
         }
 
-        // 5. TẢI DANH MỤC VÀ ĐĂNG KÝ SỰ KIỆN CLICK LỌC TRUYỆN
+        // 6. HÀM XỬ LÝ CLICK THÊM/BỎ TIM YÊU THÍCH (ĐÃ LỌC BỎ HÀM loadFavorites TRÙNG LẶP VÀ LỖI)
+        function toggleFavorite(event, bookId) {
+            event.preventDefault();
+            event.stopPropagation();
+
+            const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+            if (!currentUser) {
+                alert("Vui lòng đăng nhập để lưu truyện yêu thích nhé!");
+                window.location.href = "login.html";
+                return;
+            }
+
+            const userId = currentUser.id || currentUser.userId;
+            if (!userId) {
+                alert("Thông tin tài khoản bị lỗi (thiếu ID). Vui lòng đăng nhập lại!");
+                return;
+            }
+
+            const btn = event.currentTarget;
+            const isLiked = btn.classList.contains("liked");
+            const targetBookId = Number(bookId);
+
+            if (!isLiked) {
+                // THÊM VÀO YÊU THÍCH (POST)
+                fetch(FAVORITE_API, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ userId: userId, bookId: targetBookId })
+                })
+                    .then(async res => {
+                        const message = await res.text();
+                        if (res.ok) {
+                            btn.classList.add("liked");
+                            btn.querySelector("i").className = "fa-solid fa-heart";
+                            if (!userFavorites.includes(targetBookId)) {
+                                userFavorites.push(targetBookId);
+                            }
+                            alert("Đã thêm vào danh sách yêu thích!");
+                        } else {
+                            alert(message);
+                        }
+                    })
+                    .catch(err => console.error("Lỗi khi thêm yêu thích:", err));
+
+            } else {
+                // BỎ YÊU THÍCH (DELETE)
+                fetch(`${FAVORITE_API}?userId=${userId}&bookId=${targetBookId}`, {
+                    method: "DELETE"
+                })
+                    .then(async res => {
+                        const message = await res.text();
+                        if (res.ok) {
+                            btn.classList.remove("liked");
+                            btn.querySelector("i").className = "fa-regular fa-heart";
+                            userFavorites = userFavorites.filter(id => id !== targetBookId);
+                            alert("Đã hủy khỏi danh sách yêu thích!");
+                        } else {
+                            alert(message);
+                        }
+                    })
+                    .catch(err => console.error("Lỗi khi hủy yêu thích:", err));
+            }
+        }
+
+        // 7. TẢI DANH MỤC VÀ LỌC THEO THỂ LOẠI
         function loadCategoriesAndSetupFilter() {
             fetch(CATEGORY_API)
                 .then(res => res.json())
                 .then(categories => {
                     const categoryList = document.getElementById("category-list");
+                    if (!categoryList) return;
 
                     categories.forEach(cat => {
                         const btn = document.createElement("button");
@@ -671,7 +834,8 @@
             const buttons = document.querySelectorAll(".category-btn");
             buttons.forEach(button => {
                 button.addEventListener("click", function () {
-                    document.querySelector(".category-btn.active").classList.remove("active");
+                    const activeBtn = document.querySelector(".category-btn.active");
+                    if (activeBtn) activeBtn.classList.remove("active");
                     this.classList.add("active");
 
                     const categoryId = this.getAttribute("data-id");
@@ -686,11 +850,38 @@
             });
         }
 
+        // 8. TÍNH NĂNG TÌM KIẾM TRUYỆN
+        function setupSearchFilter() {
+            const searchInput = document.getElementById("searchInput");
+            if (!searchInput) return;
+
+            searchInput.addEventListener("input", function () {
+                const keyword = this.value.trim().toLowerCase();
+
+                const activeCategoryBtn = document.querySelector(".category-btn.active");
+                const currentCategoryId = activeCategoryBtn ? activeCategoryBtn.getAttribute("data-id") : "all";
+
+                let booksToFilter = allBooks;
+                if (currentCategoryId !== "all") {
+                    booksToFilter = allBooks.filter(book => book.category && book.category.id == currentCategoryId);
+                }
+
+                const filteredBooks = booksToFilter.filter(book => {
+                    const titleMatch = book.title ? book.title.toLowerCase().includes(keyword) : false;
+                    const authorMatch = book.author ? book.author.toLowerCase().includes(keyword) : false;
+                    return titleMatch || authorMatch;
+                });
+
+                renderBooks(filteredBooks);
+            });
+        }
+
+        // KHỞI CHẠY KHI TRANG SẴN SÀNG
         document.addEventListener('DOMContentLoaded', () => {
-            checkLoginStatus();
+            checkLoginStatus(); // Hàm này sẽ tự động gọi loadUserFavorites() rồi tới loadAllBooksToHome() tuần tự
             loadBannersToHome();
-            loadAllBooksToHome();
             loadCategoriesAndSetupFilter();
+            setupSearchFilter();
         });
     </script>
 </body>
