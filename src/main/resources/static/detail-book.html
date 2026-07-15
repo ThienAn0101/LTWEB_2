@@ -281,6 +281,137 @@
             color: #F2E7D4;
             margin: 0;
         }
+
+        /* KHỐI BÌNH LUẬN NEW */
+        .comments-container {
+            background-color: #C7AD84;
+            border: 1px solid #D6BE98;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(138, 107, 74, 0.08);
+            margin-bottom: 35px;
+        }
+
+        .comments-container h3 {
+            color: #FDFBF7;
+            font-size: 18px;
+            margin: 0 0 20px 0;
+            border-left: 3px solid #C08B5C;
+            padding-left: 10px;
+            font-family: 'Playfair Display', serif;
+        }
+
+        .comment-form {
+            margin-bottom: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .comment-input {
+            width: 100%;
+            min-height: 90px;
+            background-color: #F2E7D4;
+            border: 1px solid #D6BE98;
+            border-radius: 6px;
+            padding: 12px;
+            color: #8A6B4A;
+            font-family: 'Merriweather', serif;
+            font-size: 14px;
+            box-sizing: border-box;
+            resize: vertical;
+        }
+
+        .comment-input:focus {
+            outline: none;
+            border-color: #C08B5C;
+            box-shadow: 0 0 5px rgba(192, 139, 92, 0.3);
+        }
+
+        .submit-comment-btn {
+            background-color: #C08B5C;
+            color: #FDFBF7;
+            border: none;
+            padding: 10px 20px;
+            font-size: 13px;
+            font-weight: 700;
+            border-radius: 4px;
+            cursor: pointer;
+            align-self: flex-end;
+            font-family: 'Merriweather', serif;
+            transition: all 0.3s;
+        }
+
+        .submit-comment-btn:hover {
+            background-color: #FDFBF7;
+            color: #8A6B4A;
+        }
+
+        .comments-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        /* Thanh cuộn cho danh sách bình luận */
+        .comments-list::-webkit-scrollbar {
+            width: 6px;
+        }
+        .comments-list::-webkit-scrollbar-thumb {
+            background-color: #D6BE98;
+            border-radius: 4px;
+        }
+
+        .comment-item {
+            background-color: rgba(242, 231, 212, 0.6);
+            border: 1px solid #D6BE98;
+            padding: 15px;
+            border-radius: 6px;
+            display: flex;
+            gap: 15px;
+        }
+
+        .comment-user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1px solid #C08B5C;
+        }
+
+        .comment-content-box {
+            flex: 1;
+        }
+
+        .comment-header-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+
+        .comment-user-name {
+            font-weight: 700;
+            color: #5D432C;
+            font-size: 14px;
+        }
+
+        .comment-time {
+            font-size: 11px;
+            color: #8A6B4A;
+            font-style: italic;
+        }
+
+        .comment-text {
+            font-size: 13.5px;
+            line-height: 1.5;
+            color: #6E5235;
+            margin: 0;
+            white-space: pre-line;
+        }
+
     </style>
 </head>
 
@@ -332,6 +463,23 @@
             <h3>📚 GỢI Ý CÙNG THỂ LOẠI</h3>
             <div class="related-books-grid" id="relatedBooksGrid">
                 <p style="color: #F2E7D4; font-size: 14px;">Đang tìm kiếm các cuốn sách tương tự...</p>
+            </div>
+        </div>
+
+        <!-- KHỐI BÌNH LUẬN -->
+        <div class="comments-container">
+            <h3>💬 ĐỘC GIẢ BÌNH LUẬN</h3>
+        
+            <!-- Khung nhập bình luận -->
+            <div class="comment-form" id="commentFormArea">
+                <textarea class="comment-input" id="commentText"
+                    placeholder="Chia sẻ cảm nghĩ của bạn về cuốn sách này... ☕"></textarea>
+                <button class="submit-comment-btn" id="btnSubmitComment">Gửi bình luận</button>
+            </div>
+        
+            <!-- Danh sách các bình luận -->
+            <div class="comments-list" id="commentsList">
+                <p style="color: #F2E7D4; font-size: 14px;">Đang tải các bình luận...</p>
             </div>
         </div>
 
@@ -471,6 +619,106 @@
                         document.getElementById("relatedBooksGrid").innerHTML = `<p style="color: #F2E7D4; font-size: 14px;">Lỗi kết nối hệ thống dữ liệu gợi ý.</p>`;
                     });
             }
+
+            // === CHỨC NĂNG BÌNH LUẬN ===
+
+                // 1. Tải danh sách bình luận từ Backend
+                function loadComments() {
+                    fetch(`http://localhost:8080/api/comments/book/${bookId}`)
+                        .then(res => {
+                            if (!res.ok) throw new Error();
+                            return res.json();
+                        })
+                        .then(comments => {
+                            const commentsList = document.getElementById("commentsList");
+                            commentsList.innerHTML = "";
+
+                            if (comments.length === 0) {
+                                commentsList.innerHTML = `<p style="color: #FDFBF7; font-size: 14px; font-style: italic;">Chưa có bình luận nào. Hãy là người đầu tiên chia sẻ cảm nghĩ!</p>`;
+                                return;
+                            }
+
+                            comments.forEach(cmt => {
+                                const cmtItem = document.createElement("div");
+                                cmtItem.className = "comment-item";
+
+                                // Xử lý avatar người bình luận giống logic header
+                                const name = cmt.userFullName || cmt.username || "Ẩn danh";
+                                const avatarUrl = cmt.userAvatar
+                                    ? cmt.userAvatar
+                                    : `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random`;
+
+                                // Định dạng ngày tháng (nếu backend trả về dạng timestamp hoặc string ISO)
+                                const cmtDate = cmt.createdAt ? new Date(cmt.createdAt).toLocaleString('vi-VN') : "Vừa xong";
+
+                                cmtItem.innerHTML = `
+                            <img src="${avatarUrl}" alt="Avatar" class="comment-user-avatar">
+                            <div class="comment-content-box">
+                                <div class="comment-header-info">
+                                    <span class="comment-user-name">${name}</span>
+                                    <span class="comment-time">${cmtDate}</span>
+                                </div>
+                                <p class="comment-text">${cmt.content}</p>
+                            </div>
+                        `;
+                                commentsList.appendChild(cmtItem);
+                            });
+                        })
+                        .catch(err => {
+                            console.error("Lỗi tải bình luận:", err);
+                            document.getElementById("commentsList").innerHTML = `<p style="color: #F2E7D4; font-size: 14px;">Không thể tải bình luận lúc này.</p>`;
+                        });
+                }
+
+                // 2. Gửi bình luận mới lên Backend
+                document.getElementById("btnSubmitComment").addEventListener("click", function () {
+                    const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+
+                    if (!currentUser) {
+                        alert("Bạn cần đăng nhập để viết bình luận nhé! ☕");
+                        window.location.href = "login.html";
+                        return;
+                    }
+
+                    const content = document.getElementById("commentText").value.trim();
+                    if (!content) {
+                        alert("Vui lòng nhập nội dung bình luận.");
+                        return;
+                    }
+
+                    // Body gửi lên tùy thuộc cấu trúc Entities / DTO Backend Spring Boot của bạn
+                    const commentData = {
+                        bookId: parseInt(bookId),
+                        userId: currentUser.id, // ID người dùng lưu trong localStorage lúc login
+                        content: content
+                    };
+
+                    fetch(`http://localhost:8080/api/comments`, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            // "Authorization": "Bearer " + token // Bỏ comment nếu API backend bắt buộc JWT Token
+                        },
+                        body: JSON.stringify(commentData)
+                    })
+                        .then(res => {
+                            if (res.ok) {
+                                document.getElementById("commentText").value = ""; // Xoá sạch khung nhập
+                                loadComments(); // Tải lại danh sách
+                            } else {
+                                alert("Có lỗi xảy ra khi gửi bình luận. Thử lại sau!");
+                            }
+                        })
+                        .catch(err => console.error("Lỗi gửi comment:", err));
+                });
+
+                // 3. Đưa hàm loadComments vào sự kiện DOMContentLoaded để tự động chạy khi mở trang
+                window.addEventListener('DOMContentLoaded', () => {
+                    checkUserSession();
+                    loadBookDetails();
+                    loadComments(); // <-- Thêm dòng này để chạy hàm
+                });
+                
         // Chạy đồng thời cả 2 hàm khi trang tải xong
         window.addEventListener('DOMContentLoaded', () => {
             checkUserSession(); // Cập nhật hình đại diện user

@@ -16,10 +16,13 @@
                 <span class="logo-text">3T <span class="highlight">Story</span></span>
             </div>
             <nav class="menu">
-                <a href="dashboard.html" class="menu-item"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+                <a href="dashboard.html" class="menu-item active"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
                 <a href="manage-users.html" class="menu-item"><i class="fa-solid fa-users"></i> Đọc giả</a>
                 <a href="admin.html" class="menu-item"><i class="fa-solid fa-list"></i> Danh mục truyện</a>
-                <a href="manage-books.html" class="menu-item active"><i class="fa-solid fa-book"></i> Quản lý Truyện</a>
+                <a href="manage-books.html" class="menu-item"><i class="fa-solid fa-book"></i> Quản lý Truyện</a>
+                <a href="manage-chapters.html" class="menu-item"><i class="fa-solid fa-list-ol"></i> Quản lý Chương</a>
+                <a href="manage-banners.html" class="menu-item"><i class="fa-solid fa-images"></i> Quản lý Banner</a>
+                <a href="manage-comments.html" class="menu-item"><i class="fas fa-comments"></i> Quản lý Bình luận</a>
             </nav>
         </aside>
 
@@ -102,7 +105,7 @@
                         const option = document.createElement('option');
                         option.value = category.id;
                         option.textContent = category.name;
-                        option.style.backgroundColor = '#241A16'; // Giữ option tiệp màu tối dropdown
+                        option.style.backgroundColor = '#241A16';
                         select.appendChild(option);
                     });
                 })
@@ -125,7 +128,11 @@
 
             const fileInput = document.getElementById('coverFile');
             if (fileInput.files.length > 0) {
+                // LƯU Ý: Nếu backend của bạn khai báo là @RequestPart("image") thì sửa chữ "file" thành "image" nhé
                 formData.append("file", fileInput.files[0]);
+            } else {
+                // Gửi một Blob rỗng để tránh lỗi thiếu param bắt buộc ở một số phiên bản Spring khắt khe
+                formData.append("file", new Blob(), "");
             }
 
             const categoryId = document.getElementById('category-select').value;
@@ -134,15 +141,21 @@
                 method: 'POST',
                 body: formData
             })
-                .then(response => {
+                .then(async response => {
                     if (response.ok) {
                         alert("Thêm bộ truyện mới thành công! 📚");
                         location.href = 'manage-books.html';
                     } else {
-                        alert("Có lỗi xảy ra khi thêm truyện.");
+                        // Đọc lỗi chi tiết từ Server trả về để biết chính xác sai ở đâu
+                        const errorText = await response.text();
+                        console.error("Server Error:", errorText);
+                        alert("Có lỗi xảy ra khi thêm truyện: " + (errorText || response.statusText));
                     }
                 })
-                .catch(error => console.error('Lỗi kết nối mạng:', error));
+                .catch(error => {
+                    console.error('Lỗi kết nối mạng:', error);
+                    alert("Không thể kết nối tới server backend!");
+                });
         });
     </script>
 </body>

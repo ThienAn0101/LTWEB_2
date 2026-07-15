@@ -443,6 +443,35 @@
         .favorite-btn.liked i {
             color: #e74c3c; /* Màu đỏ khi đã thích */
         }
+
+        /* --- CSS CHO NÚT PHÂN TRANG --- */
+        .page-btn {
+            background-color: #D6BE98;
+            color: #2D1F18;
+            border: 1px solid #C08B5C;
+            padding: 8px 14px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            transition: all 0.3s ease;
+        }
+
+        .page-btn:hover,
+        .page-btn.active {
+            background-color: #8A6B4A;
+            color: #FDFBF7;
+            border-color: #8A6B4A;
+            box-shadow: 0 2px 5px rgba(45, 31, 24, 0.15);
+        }
+        
+        .page-btn:disabled {
+            background-color: #EADBC8;
+            color: #BEA277;
+            border-color: #EADBC8;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
     </style>
 </head>
 
@@ -485,6 +514,8 @@
         <div class="books-grid" id="books-container">
             <p style="color: #8A6B4A; grid-column: 1/-1; text-align: center;">Đang sửa soạn giá sách...</p>
         </div>
+
+        <div id="pagination-container" style="display: flex; justify-content: center; gap: 8px; margin-top: 30px;"></div>
     </main>
 
     <footer class="client-footer">
@@ -536,6 +567,9 @@
         let totalSlides = 0;
         let allBooks = [];
         let userFavorites = []; // Lưu mảng các Book ID dạng Number để check .includes()
+        let currentPage = 1;
+        const rowsPerPage = 10;
+        let currentFilteredBooks = [];
 
         // 1. KIỂM TRA TRẠNG THÁI ĐĂNG NHẬP VÀ ĐIỀU HƯỚNG TẢI DỮ LIỆU
         function checkLoginStatus() {
@@ -689,21 +723,87 @@
 
         // 4. TẢI TOÀN BỘ TRUYỆN BAN ĐẦU VÀO BỘ NHỚ ĐỆM
         function loadAllBooksToHome() {
-            fetch(`${BOOK_API}?page=0&size=100`)
-                .then(response => {
-                    if (!response.ok) throw new Error("Lỗi mạng!");
-                    return response.json();
-                })
-                .then(pageData => {
-                    allBooks = pageData.content || [];
-                    renderBooks(allBooks);
-                })
-                .catch(error => {
-                    console.error("Lỗi khi tải truyện:", error);
-                    document.getElementById('books-container').innerHTML = `<p style="color: #8A6B4A; grid-column: 1/-1; text-align: center;">❌ Lỗi kết nối đến thư viện Spring Boot.</p>`;
-                });
-        }
+                fetch(`${BOOK_API}?page=0&size=100`)
+                    .then(response => {
+                        if (!response.ok) throw new Error("Lỗi mạng!");
+                        return response.json();
+                    })
+                    .then(pageData => {
+                        allBooks = pageData.content || [];
+                        currentFilteredBooks = [...allBooks]; // Mặc định ban đầu chưa lọc
 
+                        currentPage = 1; // Reset về trang 1
+                        displayBooksPage(currentFilteredBooks, currentPage);
+                    })
+                    .catch(error => {
+                        console.error("Lỗi khi tải truyện:", error);
+                        document.getElementById('books-container').innerHTML = `<p style="color: #8A6B4A; grid-column: 1/-1; text-align: center;">❌ Lỗi kết nối đến thư viện Spring Boot.</p>`;
+                    });
+            }
+
+            function displayBooksPage(items, page) {
+                    const container = document.getElementById('books-container');
+                    const paginationContainer = document.getElementById('pagination-container');
+
+                    if (!container) return;
+                    container.innerHTML = "";
+                    if (paginationContainer) paginationContainer.innerHTML = "";
+
+                    if (!items || items.length === 0) {
+                        container.innerHTML = `<p style="color: #8A6B4A; grid-column: 1/-1; text-align: center;">Chưa có cuốn sách nào thuộc danh sách này.</p>`;
+                        return;
+                    }
+
+                    // Logic tính toán vị trí để cắt mảng (Cắt chuẩn 10 phần tử mỗi trang)
+                    page--;
+                    const start = rowsPerPage * page;
+                    const end = start + rowsPerPage;
+                    const paginatedItems = items.slice(start, end);
+
+                    // Tận dụng hàm hiển thị thẻ card gốc của bạn
+                    renderBooks(paginatedItems);
+
+                    // Dựng thanh điều hướng phân trang bên dưới
+                    const pageCount = Math.ceil(items.length / rowsPerPage);
+                    if (pageCount <= 1) return; // Nếu tổng số sách ít hơn hoặc bằng 10 thì không hiện nút phân trang
+
+                    // Nút "Trước" (Prev)
+                    const prevBtn = document.createElement('button');
+                    prevBtn.className = 'page-btn';
+                    prevBtn.innerHTML = `<i class="fa-solid fa-chevron-left"></i>`;
+                    prevBtn.disabled = (currentPage === 1);
+                    prevBtn.addEventListener('click', () => {
+                        currentPage--;
+                        displayBooksPage(items, currentPage);
+                        window.scrollTo({ top: container.offsetTop - 100, behavior: 'smooth' }); // Cuộn mượt lên danh sách sách
+                    });
+                    paginationContainer.appendChild(prevBtn);
+
+                    // Các nút số trang cụ thể
+                    for (let i = 1; i <= pageCount; i++) {
+                        const btn = document.createElement('button');
+                        btn.className = `page-btn ${currentPage === i ? 'active' : ''}`;
+                        btn.innerText = i;
+                        btn.addEventListener('click', () => {
+                            currentPage = i;
+                            displayBooksPage(items, currentPage);
+                            window.scrollTo({ top: container.offsetTop - 100, behavior: 'smooth' });
+                        });
+                        paginationContainer.appendChild(btn);
+                    }
+
+                    // Nút "Sau" (Next)
+                    const nextBtn = document.createElement('button');
+                    nextBtn.className = 'page-btn';
+                    nextBtn.innerHTML = `<i class="fa-solid fa-chevron-right"></i>`;
+                    nextBtn.disabled = (currentPage === pageCount);
+                    nextBtn.addEventListener('click', () => {
+                        currentPage++;
+                        displayBooksPage(items, currentPage);
+                        window.scrollTo({ top: container.offsetTop - 100, behavior: 'smooth' });
+                    });
+                    paginationContainer.appendChild(nextBtn);
+                }
         // 5. HÀM DỰNG GIAO DIỆN HIỂN THỊ SÁCH (ĐÃ FIX: So sánh chuẩn Number)
         function renderBooks(booksList) {
             const container = document.getElementById('books-container');
@@ -831,27 +931,33 @@
         }
 
         function setupCategoryButtons() {
-            const buttons = document.querySelectorAll(".category-btn");
-            buttons.forEach(button => {
-                button.addEventListener("click", function () {
-                    const activeBtn = document.querySelector(".category-btn.active");
-                    if (activeBtn) activeBtn.classList.remove("active");
-                    this.classList.add("active");
+                const buttons = document.querySelectorAll(".category-btn");
+                buttons.forEach(button => {
+                    button.addEventListener("click", function () {
+                        const activeBtn = document.querySelector(".category-btn.active");
+                        if (activeBtn) activeBtn.classList.remove("active");
+                        this.classList.add("active");
 
-                    const categoryId = this.getAttribute("data-id");
+                        const categoryId = this.getAttribute("data-id");
 
-                    if (categoryId === "all") {
-                        renderBooks(allBooks);
-                    } else {
-                        const filtered = allBooks.filter(book => book.category && book.category.id == categoryId);
-                        renderBooks(filtered);
-                    }
+                        // Xóa từ khóa ở thanh tìm kiếm khi chuyển danh mục để tránh xung đột logic
+                        const searchInput = document.getElementById("searchInput");
+                        if (searchInput) searchInput.value = "";
+
+                        if (categoryId === "all") {
+                            currentFilteredBooks = [...allBooks];
+                        } else {
+                            currentFilteredBooks = allBooks.filter(book => book.category && book.category.id == categoryId);
+                        }
+
+                        currentPage = 1; // Reset về trang 1 khi lọc
+                        displayBooksPage(currentFilteredBooks, currentPage);
+                    });
                 });
-            });
-        }
+            }
 
         // 8. TÍNH NĂNG TÌM KIẾM TRUYỆN
-        function setupSearchFilter() {
+       function setupSearchFilter() {
             const searchInput = document.getElementById("searchInput");
             if (!searchInput) return;
 
@@ -866,13 +972,14 @@
                     booksToFilter = allBooks.filter(book => book.category && book.category.id == currentCategoryId);
                 }
 
-                const filteredBooks = booksToFilter.filter(book => {
+                currentFilteredBooks = booksToFilter.filter(book => {
                     const titleMatch = book.title ? book.title.toLowerCase().includes(keyword) : false;
                     const authorMatch = book.author ? book.author.toLowerCase().includes(keyword) : false;
                     return titleMatch || authorMatch;
                 });
 
-                renderBooks(filteredBooks);
+                currentPage = 1; // Trở lại trang đầu với kết quả tìm kiếm mới
+                displayBooksPage(currentFilteredBooks, currentPage);
             });
         }
 
